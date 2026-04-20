@@ -43,8 +43,8 @@ Continuous 24/7 monitoring via **X (Twitter) API Filtered Stream**. Raw social v
 ### 30% — On-Chain Conviction
 Deep chain analysis focused on the **Top 20 core holding addresses** per token. Wash trading and volume manipulation are filtered out. The only metric that matters: are whales accumulating during the ruins period? If price is in the basement and smart money is quietly stacking — the system assigns maximum financial weight.
 
-### 10% — Human / AI Intuition (Cultural Aesthetic)
-Qualitative assessment of the token's IP uniqueness, nostalgia factor, and secondary creation potential. AI-assisted scoring asks one question: *Is this story worth retelling?* Memes with strong cultural DNA resurface. Generic ones don't.
+### 10% — Human Judgement (Cultural Aesthetic)
+Qualitative assessment of the token's IP uniqueness, nostalgia factor, and secondary creation potential — evaluated through human experience and intuition, with AI providing analytical support. The defining question: *Is this story worth retelling?* Memes with strong cultural DNA resurface. Generic ones don't.
 
 ---
 
