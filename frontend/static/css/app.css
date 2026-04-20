@@ -68,7 +68,7 @@ header {
 .hdr-text-btn {
   height: 48px;
   padding: 0 22px;
-  font-size: 10px;
+  font-size: 11px;
   font-family: 'Press Start 2P', monospace;
   white-space: nowrap;
   display: flex;
@@ -103,7 +103,7 @@ header {
 .network-badge {
   height: 48px;
   padding: 0 16px;
-  font-size: 9px;
+  font-size: 10px;
   font-family: 'Press Start 2P', monospace;
   display: flex;
   align-items: center;
@@ -128,7 +128,7 @@ main { padding: 44px 20px 60px; max-width: 1020px; margin: 0 auto; }
 
 .section-label {
   text-align: center;
-  font-size: 10px;
+  font-size: 11px;
   color: #aaa;
   letter-spacing: 4px;
   margin-bottom: 40px;
@@ -169,7 +169,7 @@ main { padding: 44px 20px 60px; max-width: 1020px; margin: 0 auto; }
   position: absolute;
   top: -13px; left: 50%;
   transform: translateX(-50%);
-  font-size: 13px;
+  font-size: 14px;
   padding: 6px 14px;
   border-radius: 8px;
   white-space: nowrap;
@@ -220,7 +220,7 @@ main { padding: 44px 20px 60px; max-width: 1020px; margin: 0 auto; }
 
 .price {
   display: inline-block;
-  font-size: 13px; padding: 7px 18px;
+  font-size: 14px; padding: 7px 18px;
   border: 3px solid; margin-bottom: 14px;
   letter-spacing: 1px;
   border-radius: 8px;
@@ -232,7 +232,7 @@ main { padding: 44px 20px 60px; max-width: 1020px; margin: 0 auto; }
 .btn {
   display: block; width: 100%;
   font-family: 'Press Start 2P', monospace;
-  font-size: 11px; padding: 14px 0;
+  font-size: 12px; padding: 14px 0;
   border: none; cursor: pointer;
   letter-spacing: 1px;
   border-radius: 8px;
@@ -272,9 +272,9 @@ main { padding: 44px 20px 60px; max-width: 1020px; margin: 0 auto; }
   box-shadow: 0 0 10px rgba(57,255,20,.4);
 }
 
-.dlg-name { font-size: 16px; color: var(--green); text-shadow: 0 0 8px var(--green); }
+.dlg-name { font-size: 18px; color: var(--green); text-shadow: 0 0 8px var(--green); }
 
-.dlg-body { font-size: 11px; color: #ccc; line-height: 2.2; min-height: 44px; }
+.dlg-body { font-size: 12px; color: #ccc; line-height: 2.2; min-height: 44px; }
 
 .cursor {
   display: inline-block; width: 8px; height: 14px;
@@ -327,7 +327,7 @@ main { padding: 44px 20px 60px; max-width: 1020px; margin: 0 auto; }
 }
 @keyframes live-blink { 0%,100% { opacity: 1; } 50% { opacity: .3; } }
 
-.live-feed-title { font-size: 10px; color: #ff2244; text-shadow: 0 0 8px #ff2244; letter-spacing: 2px; }
+.live-feed-title { font-size: 11px; color: #ff2244; text-shadow: 0 0 8px #ff2244; letter-spacing: 2px; }
 
 .live-feed-body {
   height: 160px;
@@ -341,7 +341,7 @@ main { padding: 44px 20px 60px; max-width: 1020px; margin: 0 auto; }
 
 .chat-msg {
   display: flex; align-items: baseline; gap: 8px;
-  font-size: 11px; line-height: 1.6;
+  font-size: 12px; line-height: 1.6;
   animation: msg-in .4s ease-out;
   opacity: 0;
   animation-fill-mode: forwards;
@@ -351,7 +351,7 @@ main { padding: 44px 20px 60px; max-width: 1020px; margin: 0 auto; }
   to   { opacity: 1; transform: translateY(0); }
 }
 
-.chat-user { flex-shrink: 0; font-size: 9px; font-weight: bold; }
+.chat-user { flex-shrink: 0; font-size: 10px; font-weight: bold; }
 .chat-text { color: #bbb; }
 
 /* ── DROP REVEAL MODAL ── */
@@ -375,7 +375,7 @@ main { padding: 44px 20px 60px; max-width: 1020px; margin: 0 auto; }
 }
 @keyframes pop-in { from { transform: scale(.7); opacity: 0; } to { transform: scale(1); opacity: 1; } }
 
-.modal-title { font-size: 10px; color: #555; letter-spacing: 3px; margin-bottom: 20px; }
+.modal-title { font-size: 11px; color: #555; letter-spacing: 3px; margin-bottom: 20px; }
 .modal-token { font-size: 36px; color: var(--green); text-shadow: 0 0 20px var(--green); margin-bottom: 8px; }
 .modal-rarity { font-size: 9px; letter-spacing: 2px; margin-bottom: 28px; }
 .rarity-common  { color: #aaa; }
@@ -384,7 +384,7 @@ main { padding: 44px 20px 60px; max-width: 1020px; margin: 0 auto; }
 
 .modal-close {
   font-family: 'Press Start 2P', monospace;
-  font-size: 9px; padding: 12px 28px;
+  font-size: 10px; padding: 12px 28px;
   background: #1a1a2e; color: var(--green);
   border: 2px solid var(--green);
   border-radius: 8px;
@@ -403,6 +403,107 @@ main { padding: 44px 20px 60px; max-width: 1020px; margin: 0 auto; }
   100% { opacity:0; transform: translate(var(--dx),var(--dy)) scale(0) rotate(360deg); }
 }
 
+/* ── HELP MODAL ── */
+.help-box {
+  background: #090910;
+  border: 3px solid var(--green);
+  border-radius: 16px;
+  padding: 36px 40px 32px;
+  width: min(680px, 92vw);
+  max-height: 82vh;
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  overflow-y: auto;
+  box-shadow: 0 0 48px rgba(57,255,20,.2);
+  animation: pop-in .25s cubic-bezier(.34,1.56,.64,1);
+}
+.help-box::-webkit-scrollbar { width: 4px; }
+.help-box::-webkit-scrollbar-track { background: #0d0d1a; }
+.help-box::-webkit-scrollbar-thumb { background: #1e3a1e; border-radius: 2px; }
+
+.help-title {
+  font-size: 15px;
+  color: var(--green);
+  text-shadow: 0 0 10px var(--green);
+  letter-spacing: 3px;
+  text-align: center;
+  margin-bottom: 4px;
+}
+.help-subtitle {
+  font-size: 8px;
+  color: #444;
+  letter-spacing: 2px;
+  text-align: center;
+  margin-bottom: 28px;
+}
+
+.help-section {
+  border-top: 1px solid #1a1a2e;
+  padding: 18px 0 4px;
+  margin-bottom: 6px;
+}
+.help-section-title {
+  font-size: 9px;
+  color: var(--green);
+  letter-spacing: 2px;
+  margin-bottom: 12px;
+}
+.help-section-body {
+  font-size: 9px;
+  color: #888;
+  line-height: 2.2;
+  letter-spacing: 0.5px;
+}
+.help-highlight {
+  color: var(--orange);
+  text-shadow: 0 0 6px var(--orange);
+}
+.help-disclaimer {
+  color: #444;
+  font-size: 8px;
+  line-height: 2;
+}
+
+.help-tier-table {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.help-tier {
+  display: grid;
+  grid-template-columns: 100px 80px 1fr;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 14px;
+  background: #0d0d1a;
+  border-radius: 8px;
+  border-left: 3px solid #444;
+}
+.help-tier.tier-0 { border-color: #666; }
+.help-tier.tier-1 { border-color: #1a6bb5; }
+.help-tier.tier-2 { border-color: #9b5cf6; }
+
+.help-tier-name {
+  font-size: 9px;
+  letter-spacing: 1px;
+}
+.help-tier.tier-0 .help-tier-name { color: #ccc; }
+.help-tier.tier-1 .help-tier-name { color: var(--blue); }
+.help-tier.tier-2 .help-tier-name { color: #c084fc; }
+
+.help-tier-price {
+  font-size: 10px;
+  color: var(--orange);
+  white-space: nowrap;
+}
+.help-tier-desc {
+  font-size: 8px;
+  color: #555;
+  line-height: 1.8;
+  letter-spacing: 0;
+}
+
 /* ── HISTORY MODAL ── */
 .history-box {
   background: #090910;
@@ -418,7 +519,7 @@ main { padding: 44px 20px 60px; max-width: 1020px; margin: 0 auto; }
 }
 
 .history-title {
-  font-size: 13px;
+  font-size: 15px;
   color: var(--green);
   text-shadow: 0 0 10px var(--green);
   letter-spacing: 3px;
@@ -427,7 +528,7 @@ main { padding: 44px 20px 60px; max-width: 1020px; margin: 0 auto; }
 }
 
 .history-subtitle {
-  font-size: 7px;
+  font-size: 8px;
   color: #444;
   letter-spacing: 2px;
   text-align: center;
@@ -449,7 +550,7 @@ main { padding: 44px 20px 60px; max-width: 1020px; margin: 0 auto; }
 
 .history-empty {
   text-align: center;
-  font-size: 9px;
+  font-size: 10px;
   color: #333;
   padding: 40px 0;
   letter-spacing: 2px;
@@ -479,7 +580,7 @@ main { padding: 44px 20px 60px; max-width: 1020px; margin: 0 auto; }
 }
 
 .history-tier {
-  font-size: 10px;
+  font-size: 11px;
   letter-spacing: 1px;
   white-space: nowrap;
 }
@@ -488,14 +589,14 @@ main { padding: 44px 20px 60px; max-width: 1020px; margin: 0 auto; }
 .history-row.tier-2 .history-tier { color: #c084fc; }
 
 .history-date {
-  font-size: 8px;
+  font-size: 9px;
   color: #555;
   letter-spacing: 0;
   white-space: nowrap;
 }
 
 .history-price {
-  font-size: 9px;
+  font-size: 10px;
   color: var(--orange);
   white-space: nowrap;
   margin-left: auto;
@@ -560,7 +661,7 @@ main { padding: 44px 20px 60px; max-width: 1020px; margin: 0 auto; }
 }
 
 .htok-sym {
-  font-size: 7px;
+  font-size: 8px;
   color: var(--green);
   letter-spacing: 0;
   text-align: center;
@@ -570,7 +671,7 @@ main { padding: 44px 20px 60px; max-width: 1020px; margin: 0 auto; }
 .htok-failed .htok-sym { color: #666; }
 
 .htok-amount {
-  font-size: 7px;
+  font-size: 8px;
   color: #39FF14;
   text-align: center;
   word-break: break-all;
@@ -583,7 +684,7 @@ main { padding: 44px 20px 60px; max-width: 1020px; margin: 0 auto; }
 }
 
 .history-empty-inline {
-  font-size: 9px;
+  font-size: 10px;
   color: #333;
   letter-spacing: 2px;
 }
@@ -608,7 +709,7 @@ main { padding: 44px 20px 60px; max-width: 1020px; margin: 0 auto; }
   top: -16px; left: 50%;
   transform: translateX(-50%);
   font-family: 'Press Start 2P', monospace;
-  font-size: 10px;
+  font-size: 11px;
   padding: 7px 18px;
   border-radius: 8px;
   white-space: nowrap;
@@ -629,7 +730,7 @@ main { padding: 44px 20px 60px; max-width: 1020px; margin: 0 auto; }
 }
 
 .confirm-title {
-  font-size: 14px;
+  font-size: 16px;
   letter-spacing: 2px;
   margin-bottom: 18px;
 }
@@ -645,18 +746,18 @@ main { padding: 44px 20px 60px; max-width: 1020px; margin: 0 auto; }
   margin-bottom: 14px;
 }
 .confirm-price-label {
-  font-size: 8px;
+  font-size: 9px;
   color: #444;
   letter-spacing: 2px;
 }
 .confirm-price-val {
-  font-size: 22px;
+  font-size: 24px;
   color: #fff;
   letter-spacing: 1px;
 }
 
 .confirm-desc {
-  font-size: 7px;
+  font-size: 8px;
   color: #444;
   line-height: 2.2;
   margin-bottom: 28px;
@@ -674,20 +775,20 @@ main { padding: 44px 20px 60px; max-width: 1020px; margin: 0 auto; }
   border-radius: 8px;
 }
 .confirm-fee-label {
-  font-size: 7px;
+  font-size: 8px;
   color: #444;
   letter-spacing: 1px;
   text-align: left;
   align-self: center;
 }
 .confirm-fee-val {
-  font-size: 8px;
+  font-size: 9px;
   color: #ff2244;
   text-align: right;
   align-self: center;
 }
 .confirm-fee-net {
-  font-size: 8px;
+  font-size: 9px;
   color: var(--green);
   text-align: right;
   align-self: center;
@@ -702,7 +803,7 @@ main { padding: 44px 20px 60px; max-width: 1020px; margin: 0 auto; }
 .confirm-btn-cancel {
   flex: 1;
   font-family: 'Press Start 2P', monospace;
-  font-size: 9px;
+  font-size: 10px;
   padding: 13px 0;
   background: transparent;
   color: #555;
@@ -716,7 +817,7 @@ main { padding: 44px 20px 60px; max-width: 1020px; margin: 0 auto; }
 .confirm-btn-ok {
   flex: 2;
   font-family: 'Press Start 2P', monospace;
-  font-size: 9px;
+  font-size: 10px;
   padding: 13px 0;
   border-radius: 8px;
   cursor: pointer;
@@ -757,14 +858,14 @@ main { padding: 44px 20px 60px; max-width: 1020px; margin: 0 auto; }
 }
 .tx-toast-icon { font-size: 24px; }
 .tx-toast-title {
-  font-size: 9px;
+  font-size: 10px;
   color: var(--green);
   text-shadow: 0 0 8px var(--green);
   letter-spacing: 2px;
   margin-bottom: 5px;
 }
 .tx-toast-hash {
-  font-size: 8px;
+  font-size: 9px;
   color: #555;
   text-decoration: none;
   font-family: monospace;
@@ -793,7 +894,7 @@ main { padding: 44px 20px 60px; max-width: 1020px; margin: 0 auto; }
 }
 
 .wallet-modal-title {
-  font-size: 13px;
+  font-size: 15px;
   color: var(--green);
   text-shadow: 0 0 10px var(--green);
   letter-spacing: 3px;
@@ -802,7 +903,7 @@ main { padding: 44px 20px 60px; max-width: 1020px; margin: 0 auto; }
 }
 
 .wallet-modal-subtitle {
-  font-size: 7px;
+  font-size: 8px;
   color: #444;
   letter-spacing: 2px;
   text-align: center;
@@ -851,12 +952,12 @@ main { padding: 44px 20px 60px; max-width: 1020px; margin: 0 auto; }
 
 .wallet-option-info { flex: 1; }
 .wallet-option-name {
-  font-size: 9px;
+  font-size: 10px;
   color: #ddd;
   margin-bottom: 4px;
 }
 .wallet-option-status {
-  font-size: 7px;
+  font-size: 8px;
   color: #444;
 }
 .wallet-option.installed .wallet-option-status {
@@ -868,7 +969,7 @@ main { padding: 44px 20px 60px; max-width: 1020px; margin: 0 auto; }
   display: block;
   width: 100%;
   font-family: 'Press Start 2P', monospace;
-  font-size: 9px;
+  font-size: 10px;
   padding: 12px;
   background: transparent;
   color: #444;
@@ -919,7 +1020,7 @@ main { padding: 44px 20px 60px; max-width: 1020px; margin: 0 auto; }
 }
 
 .waiting-subtext {
-  font-size: 8px;
+  font-size: 9px;
   color: #555;
   letter-spacing: 1px;
   text-align: center;
@@ -928,7 +1029,7 @@ main { padding: 44px 20px 60px; max-width: 1020px; margin: 0 auto; }
 
 .waiting-hash {
   font-family: monospace;
-  font-size: 9px;
+  font-size: 10px;
   color: #444;
   letter-spacing: 1px;
   text-decoration: none;
@@ -996,13 +1097,13 @@ main { padding: 44px 20px 60px; max-width: 1020px; margin: 0 auto; }
 }
 
 .swap-solo-symbol {
-  font-size: 22px;
+  font-size: 26px;
   color: var(--green);
   text-shadow: 0 0 16px var(--green);
   letter-spacing: 2px;
 }
 .swap-solo-name {
-  font-size: 8px;
+  font-size: 9px;
   color: #555;
   letter-spacing: 1px;
   text-align: center;
@@ -1012,19 +1113,19 @@ main { padding: 44px 20px 60px; max-width: 1020px; margin: 0 auto; }
   white-space: nowrap;
 }
 .swap-solo-amount {
-  font-size: 13px;
+  font-size: 15px;
   color: #fff;
   letter-spacing: 1px;
   text-shadow: 0 0 10px rgba(57,255,20,.5);
 }
 .swap-failed-msg {
-  font-size: 8px;
+  font-size: 9px;
   color: #ff2244;
   text-align: center;
 }
 
 .swap-total-label {
-  font-size: 8px;
+  font-size: 9px;
   color: #444;
   letter-spacing: 2px;
   margin-bottom: 18px;
@@ -1039,7 +1140,7 @@ main { padding: 44px 20px 60px; max-width: 1020px; margin: 0 auto; }
 .swap-btn {
   flex: 1;
   font-family: 'Press Start 2P', monospace;
-  font-size: 8px;
+  font-size: 9px;
   padding: 12px 6px;
   border-radius: 8px;
   cursor: pointer;

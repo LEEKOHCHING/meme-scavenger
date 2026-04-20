@@ -38,7 +38,7 @@ Simple, transparent, on-chain.
 The scoring engine evaluates every token across three dimensions, weighted to reflect what actually predicts recovery in dead meme markets:
 
 ### 60% — Social Persistence
-Continuous 24/7 monitoring via **X (Twitter) API Filtered Stream**. Raw social volume means nothing — the AI layer (Claude + GLM-5) distinguishes bot activity and paid shills from genuine community conviction. The signal we hunt: communities still producing content and iterating on narrative *after* a 95% drawdown. That stubbornness is rare. When it exists, it means something.
+Continuous 24/7 monitoring via **X (Twitter) API Filtered Stream**. Raw social volume means nothing — the AI layer (Claude) distinguishes bot activity and paid shills from genuine community conviction. The signal we hunt: communities still producing content and iterating on narrative *after* a 95% drawdown. That stubbornness is rare. When it exists, it means something.
 
 ### 30% — On-Chain Conviction
 Deep chain analysis focused on the **Top 20 core holding addresses** per token. Wash trading and volume manipulation are filtered out. The only metric that matters: are whales accumulating during the ruins period? If price is in the basement and smart money is quietly stacking — the system assigns maximum financial weight.

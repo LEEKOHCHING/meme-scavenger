@@ -17,7 +17,7 @@
   <!-- HEADER -->
   <header>
     <div class="hdr-left">
-      <div class="hdr-text-btn" title="Help"><span>Help</span></div>
+      <div class="hdr-text-btn" title="Help" onclick="openHelp()"><span>Help</span></div>
       <div class="hdr-text-btn" title="My Purchases" onclick="openHistory()"><span>History</span></div>
     </div>
 
@@ -96,6 +96,65 @@
 
   </main>
 </div><!-- /wrap -->
+
+<!-- HELP MODAL -->
+<div id="help-modal" class="wallet-modal-overlay" style="display:none" onclick="closeHelpModal(event)">
+  <div class="help-box">
+    <div class="help-title">HOW IT WORKS</div>
+    <div class="help-subtitle">Read before you dig.</div>
+
+    <div class="help-section">
+      <div class="help-section-title">⬛ WHAT IS THIS</div>
+      <div class="help-section-body">Meme Scavenge Agent is a Web3 loot-box on BNB Smart Chain. Our AI agent Sophia continuously scans thousands of near-zero meme tokens for signs of life — dev activity, real community signals, on-chain conviction. You pay USDT. You receive a curated token directly in your wallet.</div>
+    </div>
+
+    <div class="help-section">
+      <div class="help-section-title">⬛ HOW TO BUY</div>
+      <div class="help-section-body">
+        1. Connect your BSC wallet (MetaMask, OKX, Trust, Binance).<br>
+        2. Make sure you have USDT (BEP-20) in your wallet.<br>
+        3. Pick a tier and click BUY.<br>
+        4. Approve USDT spend → confirm the transaction.<br>
+        5. Token is swapped and delivered directly to your wallet.
+      </div>
+    </div>
+
+    <div class="help-section">
+      <div class="help-section-title">⬛ TIERS</div>
+      <div class="help-tier-table">
+        <div class="help-tier tier-0">
+          <span class="help-tier-name">Basic Pack</span>
+          <span class="help-tier-price">10 USDT</span>
+          <span class="help-tier-desc">The Survivors — passed safety filters. Cheap entry, judge for yourself.</span>
+        </div>
+        <div class="help-tier tier-1">
+          <span class="help-tier-name">Elite Chest</span>
+          <span class="help-tier-price">20 USDT</span>
+          <span class="help-tier-desc">The Builders — active dev commits, real community chatter.</span>
+        </div>
+        <div class="help-tier tier-2">
+          <span class="help-tier-name">Mythic Crate</span>
+          <span class="help-tier-price">30 USDT</span>
+          <span class="help-tier-desc">The Phoenixes — Sophia's personal stamp. Multi-signal convergence.</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="help-section">
+      <div class="help-section-title">⬛ PLATFORM FEE</div>
+      <div class="help-section-body">A <span class="help-highlight">5% platform fee</span> is charged on every purchase. The remaining 95% is swapped into your token and sent directly to your wallet.<br><br>
+        Example: 10 USDT → 0.50 USDT fee → 9.50 USDT swapped to token.
+      </div>
+    </div>
+
+    <div class="help-section">
+      <div class="help-section-title">⬛ DISCLAIMER</div>
+      <div class="help-section-body help-disclaimer">This is not financial advice. Meme tokens are highly speculative and can go to zero. Past curation does not guarantee future performance. Only spend what you can afford to lose.</div>
+    </div>
+
+    <button class="wallet-modal-cancel" onclick="document.getElementById('help-modal').style.display='none'">CLOSE</button>
+  </div>
+</div>
 
 <!-- HISTORY MODAL -->
 <div id="history-modal" class="wallet-modal-overlay" style="display:none" onclick="closeHistoryModal(event)">

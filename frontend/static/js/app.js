@@ -950,6 +950,15 @@ function closeHistoryModal(e) {
     document.getElementById('history-modal').style.display = 'none';
 }
 
+// ── Help modal ──
+function openHelp() {
+  document.getElementById('help-modal').style.display = 'flex';
+}
+function closeHelpModal(e) {
+  if (e.target === document.getElementById('help-modal'))
+    document.getElementById('help-modal').style.display = 'none';
+}
+
 // ── Init ──
 window.addEventListener('load', async () => {
   // Show static welcome immediately
