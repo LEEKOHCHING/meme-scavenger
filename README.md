@@ -33,6 +33,8 @@ Simple, transparent, on-chain.
 
 ## 🧬 Core Product Logic — Three-Dimensional Resilience Model (60/30/10)
 
+![Three-dimensional resilience model](./three_dimensional_resilience_model.svg)
+
 > We don't look at short-term price. We look at the **vital signs** of core consensus.
 
 The scoring engine evaluates every token across three dimensions, weighted to reflect what actually predicts recovery in dead meme markets:
