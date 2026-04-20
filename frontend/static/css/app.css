@@ -1,35 +1,5 @@
 *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
 
-/*
- * CJK font injection via unicode-range.
- * Any rule that says font-family:'Press Start 2P' will automatically use
- * Noto Sans SC for Chinese/Japanese/Korean characters, because Press Start 2P
- * has no CJK glyphs — the browser falls through to this @font-face declaration.
- * No individual rule needs to be changed.
- */
-@font-face {
-  font-family: 'Press Start 2P';
-  src: local('Noto Sans SC'),
-       local('PingFang SC'),
-       local('Microsoft YaHei'),
-       local('Hiragino Sans GB');
-  font-weight: 100 900;
-  unicode-range:
-    U+2E80-2EFF,   /* CJK Radicals Supplement */
-    U+3000-303F,   /* CJK Symbols and Punctuation */
-    U+3040-309F,   /* Hiragana */
-    U+30A0-30FF,   /* Katakana */
-    U+31F0-31FF,   /* Katakana Phonetic Extensions */
-    U+3400-4DBF,   /* CJK Extension A */
-    U+4E00-9FFF,   /* CJK Unified Ideographs (core) */
-    U+A960-A97F,   /* Hangul Jamo Extended-A */
-    U+AC00-D7AF,   /* Hangul Syllables */
-    U+F900-FAFF,   /* CJK Compatibility Ideographs */
-    U+FE30-FE4F,   /* CJK Compatibility Forms */
-    U+20000-2A6DF, /* CJK Extension B */
-    U+2A700-2CEAF; /* CJK Extension C-E */
-}
-
 :root {
   --green:  #39FF14;
   --orange: #FFBD33;
@@ -41,7 +11,7 @@
 
 body {
   background: var(--bg);
-  font-family: 'Press Start 2P', 'Noto Sans SC', monospace;
+  font-family: 'Press Start 2P', monospace;
   color: #fff;
   min-height: 100vh;
   overflow-x: hidden;
@@ -239,10 +209,10 @@ main { padding: 44px 20px 60px; max-width: 1020px; margin: 0 auto; }
   animation: star-pop 1.2s infinite;
 }
 .star-wrap i:nth-child(1)  { top:8%;  left:12%; animation-delay:0s; }
-.star-wrap i:nth-child(2)  { top:12%; right:14%; animation-delay:.3s; font-size:8px; }
-.star-wrap i:nth-child(3)  { top:4%;  left:55%; animation-delay:.6s; font-size:14px; }
-.star-wrap i:nth-child(4)  { top:22%; right:6%; animation-delay:.9s; font-size:9px; }
-.star-wrap i:nth-child(5)  { top:0%;  left:38%; animation-delay:.15s; font-size:7px; }
+.star-wrap i:nth-child(2)  { top:12%; right:14%; animation-delay:.3s; font-size: 8px; }
+.star-wrap i:nth-child(3)  { top:4%;  left:55%; animation-delay:.6s; font-size: 14px; }
+.star-wrap i:nth-child(4)  { top:22%; right:6%; animation-delay:.9s; font-size: 9px; }
+.star-wrap i:nth-child(5)  { top:0%;  left:38%; animation-delay:.15s; font-size: 7px; }
 @keyframes star-pop {
   0%,100% { transform: scale(.4) rotate(0deg);   opacity: 0; }
   50%      { transform: scale(1.3) rotate(180deg); opacity: 1; }
@@ -439,7 +409,7 @@ main { padding: 44px 20px 60px; max-width: 1020px; margin: 0 auto; }
   border: 3px solid var(--green);
   border-radius: 16px;
   padding: 36px 40px 32px;
-  width: 820px;
+  width: min(900px, 92vw);
   max-height: 80vh;
   display: flex;
   flex-direction: column;
@@ -486,10 +456,9 @@ main { padding: 44px 20px 60px; max-width: 1020px; margin: 0 auto; }
 }
 
 .history-row {
-  display: grid;
-  grid-template-columns: 90px 1fr 80px 100px;
-  align-items: center;
-  gap: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
   padding: 14px 16px;
   background: #0d0d1a;
   border-radius: 8px;
@@ -501,43 +470,40 @@ main { padding: 44px 20px 60px; max-width: 1020px; margin: 0 auto; }
 .history-row.tier-1 { border-left: 3px solid #1a6bb5; }
 .history-row.tier-2 { border-left: 3px solid #9b5cf6; }
 
+/* Top bar: tier name / date / price / tx link */
+.history-meta {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  flex-wrap: wrap;
+}
+
 .history-tier {
   font-size: 10px;
   letter-spacing: 1px;
-  line-height: 2;
-}
-.history-tier .history-date {
-  display: block;
-  font-size: 9px;
-  color: #777;
-  letter-spacing: 0;
+  white-space: nowrap;
 }
 .history-row.tier-0 .history-tier { color: #ccc; }
 .history-row.tier-1 .history-tier { color: var(--blue); }
 .history-row.tier-2 .history-tier { color: #c084fc; }
 
-.history-token {
-  font-size: 13px;
-  color: var(--green);
-  text-shadow: 0 0 6px var(--green);
-}
-.history-token .rarity-tag {
-  font-size: 9px;
-  color: #888;
-  margin-left: 8px;
-  letter-spacing: 1px;
+.history-date {
+  font-size: 8px;
+  color: #555;
+  letter-spacing: 0;
+  white-space: nowrap;
 }
 
 .history-price {
-  font-size: 12px;
+  font-size: 9px;
   color: var(--orange);
-  text-align: center;
+  white-space: nowrap;
+  margin-left: auto;
 }
 
 .history-tx {
-  font-size: 14px;
+  font-size: 12px;
   color: var(--blue);
-  text-align: right;
   font-family: monospace;
   text-decoration: none;
   white-space: nowrap;
@@ -547,6 +513,79 @@ main { padding: 44px 20px 60px; max-width: 1020px; margin: 0 auto; }
 .history-tx:hover {
   color: var(--green);
   text-shadow: 0 0 8px rgba(57,255,20,.6);
+}
+
+/* Token chips row */
+.history-tokens {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.htok {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  width: 72px;
+  background: #111120;
+  border: 1px solid #1e3a1e;
+  border-radius: 8px;
+  padding: 8px 6px 6px;
+}
+.htok.htok-failed {
+  border-color: #3a1010;
+  opacity: 0.55;
+}
+
+.htok-logo {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 1px solid #1e3a1e;
+  display: block;
+}
+.htok-logo-fb {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: #1a1a2e;
+  border: 1px solid #2a2a4a;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 16px;
+  line-height: 1;
+}
+
+.htok-sym {
+  font-size: 7px;
+  color: var(--green);
+  letter-spacing: 0;
+  text-align: center;
+  word-break: break-all;
+  line-height: 1.3;
+}
+.htok-failed .htok-sym { color: #666; }
+
+.htok-amount {
+  font-size: 7px;
+  color: #39FF14;
+  text-align: center;
+  word-break: break-all;
+  line-height: 1.3;
+  text-shadow: 0 0 6px rgba(57,255,20,.5);
+}
+.htok-amount.htok-fail {
+  color: #ff2244;
+  text-shadow: none;
+}
+
+.history-empty-inline {
+  font-size: 9px;
+  color: #333;
+  letter-spacing: 2px;
 }
 
 /* ── CONFIRM PURCHASE MODAL ── */
@@ -820,13 +859,17 @@ main { padding: 44px 20px 60px; max-width: 1020px; margin: 0 auto; }
 }
 
 .waiting-modal-box {
-  max-width: 340px;
-  width: 88%;
-  padding: 44px 36px 36px;
+  max-width: 460px;
+  width: 92%;
+  padding: 44px 40px 36px;
   display: flex;
   flex-direction: column;
   align-items: center;
   gap: 16px;
+}
+
+.waiting-modal-box .modal-title {
+  white-space: nowrap;
 }
 
 /* Spinning ring */
@@ -866,114 +909,133 @@ main { padding: 44px 20px 60px; max-width: 1020px; margin: 0 auto; }
    DEMO SWAP RESULTS MODAL
    ═══════════════════════════════════════════════════════ */
 .swap-results-modal {
-  max-width: 560px;
+  max-width: 420px;
   width: 92%;
-  padding: 36px 32px 28px;
+  padding: 36px 36px 28px;
 }
 
-.swap-grid {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 14px;
-  justify-content: center;
-  margin: 20px 0 24px;
-}
-
-.swap-card {
+/* Single-token hero card */
+.swap-solo-card {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 6px;
-  width: 110px;
-  background: #0d0d1a;
+  gap: 10px;
+  margin: 20px 0 14px;
+  padding: 28px 20px 22px;
+  background: #0b0b18;
   border: 2px solid #1e3a1e;
-  border-radius: 12px;
-  padding: 14px 10px 12px;
-  transition: border-color .2s;
+  border-radius: 16px;
 }
-
-.swap-card.swap-ok {
+.swap-solo-card.swap-ok {
   border-color: var(--green);
-  box-shadow: 0 0 12px rgba(57,255,20,.2);
+  box-shadow: 0 0 28px rgba(57,255,20,.2);
 }
-
-.swap-card.swap-fail {
+.swap-solo-card.swap-fail {
   border-color: #ff2244;
-  opacity: 0.65;
+  opacity: 0.75;
 }
 
-.swap-card-logo {
-  width: 48px;
-  height: 48px;
+.swap-solo-logo-wrap {
+  width: 90px;
+  height: 90px;
   display: flex;
   align-items: center;
   justify-content: center;
 }
-
-.swap-logo {
-  width: 48px;
-  height: 48px;
+.swap-solo-logo {
+  width: 90px;
+  height: 90px;
   border-radius: 50%;
   object-fit: cover;
-  border: 2px solid #1e3a1e;
+  border: 3px solid var(--green);
+  box-shadow: 0 0 20px rgba(57,255,20,.35);
+  display: block;
 }
-
 .swap-logo-fallback {
-  width: 48px;
-  height: 48px;
+  width: 90px;
+  height: 90px;
   border-radius: 50%;
   background: #1a1a2e;
-  border: 2px solid #2a2a4a;
+  border: 3px solid #2a2a4a;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 22px;
+  font-size: 40px;
   line-height: 1;
 }
 
-.swap-card-symbol {
-  font-size: 9px;
+.swap-solo-symbol {
+  font-size: 22px;
   color: var(--green);
+  text-shadow: 0 0 16px var(--green);
+  letter-spacing: 2px;
+}
+.swap-solo-name {
+  font-size: 8px;
+  color: #555;
   letter-spacing: 1px;
   text-align: center;
-  word-break: break-all;
-}
-
-.swap-card-name {
-  font-size: 7px;
-  color: #666;
-  text-align: center;
-  word-break: break-all;
-  max-height: 20px;
+  max-width: 240px;
   overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
-
-.swap-received {
-  font-size: 8px;
-  color: var(--green);
-  text-shadow: 0 0 8px var(--green);
-  text-align: center;
-  word-break: break-all;
+.swap-solo-amount {
+  font-size: 13px;
+  color: #fff;
+  letter-spacing: 1px;
+  text-shadow: 0 0 10px rgba(57,255,20,.5);
 }
-
-.swap-usdt-spent {
-  font-size: 7px;
-  color: #555;
-  text-align: center;
-}
-
 .swap-failed-msg {
-  font-size: 7px;
+  font-size: 8px;
   color: #ff2244;
   text-align: center;
 }
 
 .swap-total-label {
-  font-size: 9px;
-  color: #555;
+  font-size: 8px;
+  color: #444;
   letter-spacing: 2px;
-  margin-bottom: 22px;
+  margin-bottom: 18px;
 }
+
+/* Action buttons row */
+.swap-action-row {
+  display: flex;
+  gap: 10px;
+  width: 100%;
+}
+.swap-btn {
+  flex: 1;
+  font-family: 'Press Start 2P', monospace;
+  font-size: 8px;
+  padding: 12px 6px;
+  border-radius: 8px;
+  cursor: pointer;
+  letter-spacing: 1px;
+  transition: background .15s, box-shadow .15s;
+  white-space: nowrap;
+}
+.swap-btn-analyze {
+  background: #071627;
+  color: var(--blue);
+  border: 2px solid #1a6bb5;
+}
+.swap-btn-analyze:hover { background: #0d2440; box-shadow: 0 0 14px rgba(77,166,255,.4); }
+
+.swap-btn-share {
+  background: #1a0933;
+  color: #c084fc;
+  border: 2px solid #9b5cf6;
+}
+.swap-btn-share:hover { background: #2a1050; box-shadow: 0 0 14px rgba(155,92,246,.4); }
+
+.swap-btn-done {
+  background: #0a1a0a;
+  color: var(--green);
+  border: 2px solid var(--green);
+}
+.swap-btn-done:hover { background: #0d2a0d; box-shadow: 0 0 14px rgba(57,255,20,.3); }
 
 /* ═══════════════════════════════════════════════════════
    RESPONSIVE — Tablet ≤ 768px
@@ -1174,17 +1236,26 @@ main { padding: 44px 20px 60px; max-width: 1020px; margin: 0 auto; }
   }
 
   .history-row {
-    grid-template-columns: 1fr 1fr;
-    grid-template-rows: auto auto;
-    gap: 6px 8px;
     padding: 10px 12px;
+    gap: 8px;
   }
 
-  /* tier label + date stacked left, token symbol right */
-  .history-tier  { grid-column: 1; }
-  .history-token { grid-column: 2; font-size: 11px; }
-  .history-price { grid-column: 1; font-size: 10px; text-align: left; }
-  .history-tx    { grid-column: 2; font-size: 11px; }
+  .history-meta {
+    gap: 8px;
+  }
+
+  .htok {
+    width: 60px;
+    padding: 6px 4px 5px;
+  }
+
+  .htok-logo,
+  .htok-logo-fb {
+    width: 26px;
+    height: 26px;
+  }
+
+  .htok-logo-fb { font-size: 13px; }
 
   /* ── Confirm modal ── */
   .confirm-box {
@@ -1249,24 +1320,20 @@ main { padding: 44px 20px 60px; max-width: 1020px; margin: 0 auto; }
 
   /* ── Swap results modal ── */
   .swap-results-modal {
-    padding: 28px 16px 22px;
+    padding: 28px 18px 22px;
   }
 
-  .swap-card {
-    width: 90px;
-    padding: 10px 8px;
-  }
-
-  .swap-card-logo,
-  .swap-logo,
+  .swap-solo-logo,
   .swap-logo-fallback {
-    width: 38px;
-    height: 38px;
+    width: 70px;
+    height: 70px;
   }
 
-  .swap-logo-fallback {
-    font-size: 18px;
-  }
+  .swap-logo-fallback { font-size: 30px; }
+
+  .swap-solo-symbol { font-size: 16px; }
+
+  .swap-btn { font-size: 7px; padding: 10px 4px; }
 }
 
 /* ═══════════════════════════════════════════════════════

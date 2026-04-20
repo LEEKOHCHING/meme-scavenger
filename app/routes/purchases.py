@@ -172,29 +172,59 @@ def get_history(wallet: str):
         raise HTTPException(400, "Invalid wallet address")
     with get_db() as conn:
         cur = conn.cursor()
+
+        # Fetch purchases
         cur.execute(
             """
-            SELECT p.id, p.tier, p.price_u, p.tx_hash, p.created_at,
-                   d.token_symbol, d.rarity
-            FROM purchases p
-            LEFT JOIN item_drops d ON d.purchase_id = p.id
-            WHERE p.wallet_address = ?
-            ORDER BY p.created_at DESC
+            SELECT id, tier, price_u, tx_hash, created_at
+            FROM purchases
+            WHERE wallet_address = ?
+            ORDER BY created_at DESC
             """,
             wallet,
         )
-        rows = cur.fetchall()
+        purchases = cur.fetchall()
+        if not purchases:
+            return []
+
+        purchase_ids = [r.id for r in purchases]
+        id_placeholders = ",".join("?" * len(purchase_ids))
+
+        # Fetch all purchase_tokens rows for these purchases
+        cur.execute(
+            f"""
+            SELECT purchase_id, token_symbol, token_name, img_url,
+                   amount_received, success
+            FROM purchase_tokens
+            WHERE purchase_id IN ({id_placeholders})
+            ORDER BY purchase_id, id
+            """,
+            *purchase_ids,
+        )
+        token_rows = cur.fetchall()
+
+    # Group tokens by purchase_id
+    from collections import defaultdict
+    tokens_by_purchase = defaultdict(list)
+    for t in token_rows:
+        tokens_by_purchase[t.purchase_id].append({
+            "symbol":   t.token_symbol,
+            "name":     t.token_name,
+            "img_url":  t.img_url,
+            "amount":   t.amount_received,
+            "success":  bool(t.success),
+        })
+
     return [
         {
-            "id":           r.id,
-            "tier":         r.tier,
-            "price_u":      r.price_u,
-            "tx_hash":      r.tx_hash,
-            "created_at":   r.created_at.isoformat(),
-            "token_symbol": r.token_symbol,
-            "rarity":       r.rarity,
+            "id":         p.id,
+            "tier":       p.tier,
+            "price_u":    p.price_u,
+            "tx_hash":    p.tx_hash,
+            "created_at": p.created_at.isoformat(),
+            "tokens":     tokens_by_purchase.get(p.id, []),
         }
-        for r in rows
+        for p in purchases
     ]
 
 

@@ -381,6 +381,7 @@ async function doBuyDemo(tier) {
     typeText('Payment confirmed. Server is swapping your tokens…');
 
     // 5 — Tell backend to deliver demo tokens directly to user's wallet
+    //       (purchase is recorded server-side inside /api/demo/deliver)
     const deliverRes = await fetch('/api/demo/deliver', {
       method:  'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -395,9 +396,11 @@ async function doBuyDemo(tier) {
     const result = await deliverRes.json();
 
     // 6 — Show results
-    const successCount = result.swaps.filter(s => s.success).length;
-    typeText(`Done — ${successCount}/${result.swaps.length} tokens delivered to your wallet.`);
-    showSwapResults(result.swaps, TIER_PRICES[tier], result.swaps.length);
+    const s = result.swaps[0];
+    typeText(s?.success
+      ? `Done — $${s.token.symbol} delivered to your wallet.`
+      : `Swap failed. Contact support with your tx hash.`);
+    showSwapResults(result.swaps, TIER_PRICES[tier]);
 
   } catch (err) {
     hideWaitingModal();
@@ -490,39 +493,157 @@ async function doBuyContract(tier) {
   }
 }
 
-// ── Demo swap results modal ──
-function showSwapResults(results, totalUsdt, tokenCount) {
-  const perAmt = (totalUsdt / tokenCount).toFixed(2);
+// ── Demo swap results modal (single token) ──
+function showSwapResults(results, totalUsdt) {
+  const r   = results[0];   // always 1 token now
+  const tok = r ? r.token : null;
 
-  const cards = results.map(r => {
-    const logoHtml = r.token.img_url
-      ? `<img src="${r.token.img_url}" alt="${r.token.symbol}" class="swap-logo"
-             onerror="this.outerHTML='<div class=\\'swap-logo-fallback\\'>🪙</div>'">`
-      : `<div class="swap-logo-fallback">🪙</div>`;
+  const logoHtml = tok?.img_url
+    ? `<img src="${tok.img_url}" alt="${tok.symbol}" class="swap-solo-logo"
+           onerror="this.outerHTML='<div class=\\'swap-logo-fallback swap-solo-logo\\'>🪙</div>'">`
+    : `<div class="swap-logo-fallback swap-solo-logo">🪙</div>`;
 
-    const statusHtml = r.success
-      ? `<div class="swap-received">+${r.received}</div>`
-      : `<div class="swap-failed-msg">✗ No liquidity</div>`;
+  const statusHtml = r?.success
+    ? `<div class="swap-solo-amount">+${r.received}</div>`
+    : `<div class="swap-failed-msg">✗ Swap failed — no liquidity</div>`;
 
-    return `
-      <div class="swap-card ${r.success ? 'swap-ok' : 'swap-fail'}">
-        <div class="swap-card-logo">${logoHtml}</div>
-        <div class="swap-card-symbol">$${r.token.symbol}</div>
-        ${statusHtml}
-      </div>`;
-  }).join('');
+  const dexUrl   = tok?.address
+    ? `https://dexscreener.com/bsc/${tok.address}`
+    : null;
+  const tierName = ['Basic Pack','Elite Chest','Mythic Crate'][
+    document.querySelector && (() => {
+      // recover tier from price
+      if (totalUsdt === 10) return 0;
+      if (totalUsdt === 20) return 1;
+      return 2;
+    })()
+  ] || '';
 
   const overlay = document.createElement('div');
   overlay.className = 'modal-overlay';
   overlay.innerHTML = `
     <div class="modal-box swap-results-modal">
       <div class="modal-title">✦ SWAP COMPLETE ✦</div>
-      <div class="swap-grid">${cards}</div>
-      <div class="swap-total-label">${totalUsdt} USDT → ${results.filter(r=>r.success).length}/${tokenCount} tokens</div>
-      <button class="modal-close" onclick="this.closest('.modal-overlay').remove()">DONE</button>
+      <div class="swap-solo-card ${r?.success ? 'swap-ok' : 'swap-fail'}">
+        <div class="swap-solo-logo-wrap">${logoHtml}</div>
+        <div class="swap-solo-symbol">${tok ? '$' + tok.symbol : '—'}</div>
+        <div class="swap-solo-name">${tok?.name || ''}</div>
+        ${statusHtml}
+      </div>
+      <div class="swap-total-label">${totalUsdt} USDT → ${tok?.symbol || '?'}</div>
+      <div class="swap-action-row">
+        ${dexUrl ? `<button class="swap-btn swap-btn-analyze" onclick="window.open('${dexUrl}','_blank')">ANALYZE ↗</button>` : ''}
+        <button class="swap-btn swap-btn-share" onclick="generateShareImage(${JSON.stringify(tok)}, '${r?.received || '?'}', ${totalUsdt})">SHARE</button>
+        <button class="swap-btn swap-btn-done" onclick="this.closest('.modal-overlay').remove()">DONE</button>
+      </div>
     </div>`;
   document.body.appendChild(overlay);
   overlay.addEventListener('click', e => { if (e.target === overlay) overlay.remove(); });
+}
+
+// ── Share image generator (Canvas) ──
+async function generateShareImage(token, received, totalUsdt) {
+  const W = 900, H = 450;
+  const canvas = document.createElement('canvas');
+  canvas.width  = W;
+  canvas.height = H;
+  const ctx = canvas.getContext('2d');
+
+  // 1 — Draw share.png semi-transparent
+  await new Promise(resolve => {
+    const bg = new Image();
+    bg.crossOrigin = 'anonymous';
+    bg.onload = () => {
+      ctx.globalAlpha = 0.38;
+      ctx.drawImage(bg, 0, 0, W, H);
+      ctx.globalAlpha = 1;
+      resolve();
+    };
+    bg.onerror = resolve;
+    bg.src = '/images/share.png';
+  });
+
+  // 2 — Dark overlay for readability
+  ctx.fillStyle = 'rgba(6,6,16,0.62)';
+  ctx.fillRect(0, 0, W, H);
+
+  // 3 — Pixel grid pattern
+  ctx.strokeStyle = 'rgba(57,255,20,0.06)';
+  ctx.lineWidth = 1;
+  for (let x = 0; x < W; x += 28) { ctx.beginPath(); ctx.moveTo(x,0); ctx.lineTo(x,H); ctx.stroke(); }
+  for (let y = 0; y < H; y += 28) { ctx.beginPath(); ctx.moveTo(0,y); ctx.lineTo(W,y); ctx.stroke(); }
+
+  // 4 — Token logo (circle)
+  if (token?.img_url) {
+    await new Promise(resolve => {
+      const img = new Image();
+      img.crossOrigin = 'anonymous';
+      img.onload = () => {
+        const cx = W / 2, cy = 185, r = 68;
+        ctx.save();
+        ctx.beginPath();
+        ctx.arc(cx, cy, r, 0, Math.PI * 2);
+        ctx.clip();
+        ctx.drawImage(img, cx - r, cy - r, r * 2, r * 2);
+        ctx.restore();
+        // Ring
+        ctx.beginPath();
+        ctx.arc(cx, cy, r, 0, Math.PI * 2);
+        ctx.strokeStyle = '#39FF14';
+        ctx.lineWidth = 3;
+        ctx.shadowColor = '#39FF14';
+        ctx.shadowBlur = 12;
+        ctx.stroke();
+        ctx.shadowBlur = 0;
+        resolve();
+      };
+      img.onerror = resolve;
+      img.src = token.img_url;
+    });
+  }
+
+  const cx = W / 2;
+
+  // 5 — Site title (top)
+  ctx.font = '14px "Press Start 2P", monospace';
+  ctx.fillStyle = '#555';
+  ctx.textAlign = 'center';
+  ctx.letterSpacing = '3px';
+  ctx.fillText('MEME SCAVENGE AGENT', cx, 44);
+
+  // 6 — Token symbol (big green glow)
+  ctx.font = 'bold 52px "Press Start 2P", monospace';
+  ctx.fillStyle = '#39FF14';
+  ctx.shadowColor = '#39FF14';
+  ctx.shadowBlur = 24;
+  ctx.fillText('$' + (token?.symbol || '?'), cx, 296);
+  ctx.shadowBlur = 0;
+
+  // 7 — Amount received
+  ctx.font = '20px "Press Start 2P", monospace';
+  ctx.fillStyle = '#ffffff';
+  ctx.fillText('+' + received + ' tokens', cx, 340);
+
+  // 8 — Bottom info bar
+  const tierName = totalUsdt === 10 ? 'Basic Pack' : totalUsdt === 20 ? 'Elite Chest' : 'Mythic Crate';
+  const dateStr  = new Date().toLocaleDateString('en-GB');
+  ctx.font = '11px "Press Start 2P", monospace';
+  ctx.fillStyle = '#444';
+  ctx.fillText(tierName + '  ·  ' + totalUsdt + ' USDT  ·  ' + dateStr, cx, 400);
+
+  // 9 — Green border
+  ctx.strokeStyle = '#39FF14';
+  ctx.lineWidth = 4;
+  ctx.shadowColor = '#39FF14';
+  ctx.shadowBlur = 16;
+  ctx.strokeRect(6, 6, W - 12, H - 12);
+  ctx.shadowBlur = 0;
+
+  // 10 — Download
+  const link = document.createElement('a');
+  link.download = `meme-scavenger-${(token?.symbol || 'token').toLowerCase()}.png`;
+  link.href = canvas.toDataURL('image/png');
+  link.click();
 }
 
 // ── Warning toast ──
@@ -777,16 +898,36 @@ async function openHistory() {
     records.forEach(r => {
       const date  = new Date(r.created_at).toLocaleDateString();
       const short = r.tx_hash.slice(0, 6) + '...' + r.tx_hash.slice(-4);
-      const row   = document.createElement('div');
+
+      // Build token chips
+      const tokens = r.tokens || [];
+      const tokenHtml = tokens.length
+        ? tokens.map(t => {
+            const logo = t.img_url
+              ? `<img src="${t.img_url}" alt="${t.symbol}" class="htok-logo"
+                      onerror="this.outerHTML='<span class=\\'htok-logo htok-logo-fb\\'>🪙</span>'">`
+              : `<span class="htok-logo htok-logo-fb">🪙</span>`;
+            const amt = t.success && t.amount
+              ? `<span class="htok-amount">+${t.amount}</span>`
+              : `<span class="htok-amount htok-fail">✗</span>`;
+            return `<div class="htok ${t.success ? '' : 'htok-failed'}">
+              ${logo}
+              <span class="htok-sym">$${t.symbol}</span>
+              ${amt}
+            </div>`;
+          }).join('')
+        : '<span class="history-empty-inline">—</span>';
+
+      const row = document.createElement('div');
       row.className = `history-row tier-${r.tier}`;
       row.innerHTML = `
-        <div class="history-tier">${TIER_NAMES[r.tier]}<span class="history-date">${date}</span></div>
-        <div class="history-token">
-          $${r.token_symbol}
-          <span class="rarity-tag">${r.rarity.toUpperCase()}</span>
+        <div class="history-meta">
+          <div class="history-tier">${TIER_NAMES[r.tier]}</div>
+          <div class="history-date">${date}</div>
+          <div class="history-price">${r.price_u} USDT</div>
+          <a class="history-tx" href="https://bscscan.com/tx/${r.tx_hash}" target="_blank">${short} ↗</a>
         </div>
-        <div class="history-price">${r.price_u}U</div>
-        <a class="history-tx" href="https://bscscan.com/tx/${r.tx_hash}" target="_blank">${short} ↗</a>`;
+        <div class="history-tokens">${tokenHtml}</div>`;
       list.appendChild(row);
     });
   } catch {

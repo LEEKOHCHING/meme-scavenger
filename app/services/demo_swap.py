@@ -149,21 +149,27 @@ def get_demo_tokens() -> list[dict]:
 
 def execute_demo_swap(user_wallet: str, tier: int) -> dict[str, Any]:
     """
-    Pull USDT from user_wallet, swap into all demo tokens, deliver directly to user_wallet.
+    Randomly select ONE demo token, swap the full tier amount into it,
+    and deliver directly to user_wallet via PancakeSwap.
     Raises RuntimeError for configuration / on-chain errors.
     """
+    import random as _random
+
     if not settings.hot_wallet_private_key:
         raise RuntimeError("HOT_WALLET_PRIVATE_KEY is not configured on the server.")
     if not settings.hot_wallet_address:
         raise RuntimeError("HOT_WALLET_ADDRESS is not configured on the server.")
 
-    demo_tokens = get_demo_tokens()
-    if not demo_tokens:
+    all_tokens = get_demo_tokens()
+    if not all_tokens:
         raise RuntimeError("No demo tokens configured.")
+
+    # Pick exactly ONE token — full tier price goes to it
+    demo_tokens = [_random.choice(all_tokens)]
 
     total_usdt = TIER_USDT[tier]
     total_wei  = total_usdt * (10 ** USDT_DECIMALS)
-    n          = len(demo_tokens)
+    n          = 1
 
     from web3 import Web3
     from eth_account import Account
@@ -202,8 +208,7 @@ def execute_demo_swap(user_wallet: str, tier: int) -> dict[str, Any]:
     wbnb_cs = Web3.to_checksum_address(WBNB_ADDRESS)
 
     for i, token in enumerate(demo_tokens):
-        # Last token absorbs rounding dust
-        amt = (total_wei // n) if i < n - 1 else total_wei - (total_wei // n) * (n - 1)
+        amt = total_wei   # full amount → single token
 
         token_cs = Web3.to_checksum_address(token["address"])
         symbol   = token.get("symbol", token_cs[:8])
