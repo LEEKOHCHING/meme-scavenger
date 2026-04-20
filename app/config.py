@@ -6,6 +6,8 @@ class Settings(BaseSettings):
     mssql_database: str
     mssql_user: str
     mssql_password: str
+    mssql_driver: int = 17        # ODBC Driver version: 17 or 18
+    mssql_encrypt: str = "yes"    # "yes" / "no" — Driver 18 defaults to yes
     app_host: str = "0.0.0.0"
     app_port: int = 8000
     app_env: str = "development"
