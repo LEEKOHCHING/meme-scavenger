@@ -31,6 +31,23 @@ Simple, transparent, on-chain.
 
 ---
 
+## 🧬 Core Product Logic — Three-Dimensional Resilience Model (60/30/10)
+
+> We don't look at short-term price. We look at the **vital signs** of core consensus.
+
+The scoring engine evaluates every token across three dimensions, weighted to reflect what actually predicts recovery in dead meme markets:
+
+### 60% — Social Persistence
+Continuous 24/7 monitoring via **X (Twitter) API Filtered Stream**. Raw social volume means nothing — the AI layer (Claude + GLM-5) distinguishes bot activity and paid shills from genuine community conviction. The signal we hunt: communities still producing content and iterating on narrative *after* a 95% drawdown. That stubbornness is rare. When it exists, it means something.
+
+### 30% — On-Chain Conviction
+Deep chain analysis focused on the **Top 20 core holding addresses** per token. Wash trading and volume manipulation are filtered out. The only metric that matters: are whales accumulating during the ruins period? If price is in the basement and smart money is quietly stacking — the system assigns maximum financial weight.
+
+### 10% — Human / AI Intuition (Cultural Aesthetic)
+Qualitative assessment of the token's IP uniqueness, nostalgia factor, and secondary creation potential. AI-assisted scoring asks one question: *Is this story worth retelling?* Memes with strong cultural DNA resurface. Generic ones don't.
+
+---
+
 ## 🧱 Tech Stack
 
 ### Backend
@@ -150,6 +167,9 @@ BSC_RPC_URL=https://bsc-dataseed.binance.org/
 # Demo Mode Hot Wallet
 HOT_WALLET_ADDRESS=0x...
 HOT_WALLET_PRIVATE_KEY=0x...
+
+# Platform Fee
+PLATFORM_FEE_PCT=5.0        # percentage retained per purchase (default: 5%)
 ```
 
 ---

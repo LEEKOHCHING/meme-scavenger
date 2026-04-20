@@ -33,6 +33,8 @@ class Settings(BaseSettings):
     # Demo mode hot wallet (server-side swap executor)
     hot_wallet_address:     str = ""
     hot_wallet_private_key: str = ""
+    # Platform fee
+    platform_fee_pct: float = 5.0   # percentage kept by platform (e.g. 5.0 = 5%)
 
     model_config = {"env_file": ".env", "env_file_encoding": "utf-8", "env_ignore_empty": True}
 

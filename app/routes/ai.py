@@ -100,7 +100,10 @@ def _client_instance() -> AsyncAnthropic:
 @router.get("/config")
 async def get_config():
     """Return public frontend config values read from .env."""
-    return {"sophia_interval": settings.sophia_interval}
+    return {
+        "sophia_interval":  settings.sophia_interval,
+        "platform_fee_pct": settings.platform_fee_pct,
+    }
 
 
 @router.get("/dialogue")

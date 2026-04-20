@@ -1,6 +1,7 @@
 // ── State ──
 let walletAddress = null;
 let activeProvider = null;
+let PLATFORM_FEE_PCT = 5;   // default; overwritten by /api/ai/config on load
 
 const BSC_CHAIN_ID = '0x38'; // BSC Mainnet = 56
 
@@ -286,10 +287,19 @@ function buy(tier) {
   const badge = document.getElementById('confirm-tier-badge');
   badge.textContent = info.name;
   badge.className = `confirm-tier-badge ${info.cls}`;
-  document.getElementById('confirm-img').src    = info.img;
+  const totalU = TIER_PRICES[tier];
+  const feeU   = +(totalU * PLATFORM_FEE_PCT / 100).toFixed(2);
+  const netU   = +(totalU - feeU).toFixed(2);
+
+  document.getElementById('confirm-img').src           = info.img;
   document.getElementById('confirm-title').textContent = info.name;
-  document.getElementById('confirm-price').textContent = info.price;
+  document.getElementById('confirm-price').textContent = `${totalU} USDT`;
   document.getElementById('confirm-desc').textContent  = info.desc;
+  document.getElementById('confirm-fee-row').innerHTML =
+    `<span class="confirm-fee-label">PLATFORM FEE (${PLATFORM_FEE_PCT}%)</span>
+     <span class="confirm-fee-val">−${feeU} USDT</span>` +
+    `<span class="confirm-fee-label">YOU RECEIVE</span>
+     <span class="confirm-fee-net">${netU} USDT swap</span>`;
   document.getElementById('confirm-btn-ok').onclick = () => {
     document.getElementById('confirm-modal').style.display = 'none';
     doBuy(tier);
@@ -400,7 +410,7 @@ async function doBuyDemo(tier) {
     typeText(s?.success
       ? `Done — $${s.token.symbol} delivered to your wallet.`
       : `Swap failed. Contact support with your tx hash.`);
-    showSwapResults(result.swaps, TIER_PRICES[tier]);
+    showSwapResults(result.swaps, TIER_PRICES[tier], result.fee_usdt);
 
   } catch (err) {
     hideWaitingModal();
@@ -494,7 +504,7 @@ async function doBuyContract(tier) {
 }
 
 // ── Demo swap results modal (single token) ──
-function showSwapResults(results, totalUsdt) {
+function showSwapResults(results, totalUsdt, feeUsdt) {
   const r   = results[0];   // always 1 token now
   const tok = r ? r.token : null;
 
@@ -530,7 +540,7 @@ function showSwapResults(results, totalUsdt) {
         <div class="swap-solo-name">${tok?.name || ''}</div>
         ${statusHtml}
       </div>
-      <div class="swap-total-label">${totalUsdt} USDT → ${tok?.symbol || '?'}</div>
+      <div class="swap-total-label">${totalUsdt} USDT → ${tok?.symbol || '?'} (fee ${feeUsdt ?? (totalUsdt * PLATFORM_FEE_PCT / 100).toFixed(2)} USDT)</div>
       <div class="swap-action-row">
         ${dexUrl ? `<button class="swap-btn swap-btn-analyze" onclick="window.open('${dexUrl}','_blank')">ANALYZE ↗</button>` : ''}
         <button class="swap-btn swap-btn-share" onclick="generateShareImage(${JSON.stringify(tok)}, '${r?.received || '?'}', ${totalUsdt})">SHARE</button>
@@ -951,7 +961,9 @@ window.addEventListener('load', async () => {
   // Fetch interval from .env via backend, then start auto-tick
   try {
     const res = await fetch('/api/ai/config');
-    const { sophia_interval } = res.ok ? await res.json() : { sophia_interval: 30 };
+    const cfg = res.ok ? await res.json() : {};
+    const { sophia_interval = 30, platform_fee_pct = 5 } = cfg;
+    PLATFORM_FEE_PCT = platform_fee_pct;
     _startSophiaTimer(sophia_interval);
   } catch {
     _startSophiaTimer(30); // fallback if backend unreachable

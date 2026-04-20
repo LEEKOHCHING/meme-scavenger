@@ -663,6 +663,37 @@ main { padding: 44px 20px 60px; max-width: 1020px; margin: 0 auto; }
   letter-spacing: 1px;
 }
 
+.confirm-fee-row {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 4px 10px;
+  margin-bottom: 20px;
+  padding: 10px 14px;
+  background: #0a0a14;
+  border: 1px solid #1a1a2e;
+  border-radius: 8px;
+}
+.confirm-fee-label {
+  font-size: 7px;
+  color: #444;
+  letter-spacing: 1px;
+  text-align: left;
+  align-self: center;
+}
+.confirm-fee-val {
+  font-size: 8px;
+  color: #ff2244;
+  text-align: right;
+  align-self: center;
+}
+.confirm-fee-net {
+  font-size: 8px;
+  color: var(--green);
+  text-align: right;
+  align-self: center;
+  text-shadow: 0 0 6px rgba(57,255,20,.4);
+}
+
 .confirm-actions {
   display: flex;
   gap: 12px;

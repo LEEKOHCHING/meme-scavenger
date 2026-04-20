@@ -167,9 +167,16 @@ def execute_demo_swap(user_wallet: str, tier: int) -> dict[str, Any]:
     # Pick exactly ONE token — full tier price goes to it
     demo_tokens = [_random.choice(all_tokens)]
 
-    total_usdt = TIER_USDT[tier]
-    total_wei  = total_usdt * (10 ** USDT_DECIMALS)
-    n          = 1
+    total_usdt  = TIER_USDT[tier]
+    fee_pct     = settings.platform_fee_pct          # e.g. 5.0
+    net_usdt    = round(total_usdt * (1 - fee_pct / 100), 6)
+    total_wei   = int(net_usdt * (10 ** USDT_DECIMALS))
+    n           = 1
+
+    logger.info(
+        f"[demo_swap] tier={tier} total={total_usdt} USDT "
+        f"fee={fee_pct}% net={net_usdt} USDT"
+    )
 
     from web3 import Web3
     from eth_account import Account
@@ -272,4 +279,9 @@ def execute_demo_swap(user_wallet: str, tier: int) -> dict[str, Any]:
             logger.error(f"[demo_swap] ✗ {symbol} exception: {msg}")
             results.append({"token": token, "success": False, "error": msg})
 
-    return {"swaps": results, "total_usdt": total_usdt}
+    return {
+        "swaps":      results,
+        "total_usdt": total_usdt,
+        "fee_usdt":   round(total_usdt - net_usdt, 6),
+        "net_usdt":   net_usdt,
+    }
