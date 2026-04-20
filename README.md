@@ -17,6 +17,20 @@ A Web3 loot-box experience built on BNB Smart Chain. An AI agent named **Sophia*
 
 ---
 
+## 💰 Business Model
+
+Users pay USDT to receive a randomly selected meme token. The platform charges a **5% fee** on every purchase — retained by the MemeScavenger smart contract at the point of payment. The remaining 95% is used to execute the token swap via PancakeSwap and deliver the tokens directly to the user's wallet.
+
+| Tier | User Pays | Platform Fee (5%) | Swapped to Token |
+|---|---|---|---|
+| Basic Pack | 10 USDT | 0.50 USDT | 9.50 USDT |
+| Elite Chest | 20 USDT | 1.00 USDT | 19.00 USDT |
+| Mythic Crate | 30 USDT | 1.50 USDT | 28.50 USDT |
+
+Simple, transparent, on-chain.
+
+---
+
 ## 🧱 Tech Stack
 
 ### Backend
