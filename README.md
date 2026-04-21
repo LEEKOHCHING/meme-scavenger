@@ -117,14 +117,37 @@ Grok has native real-time access to X (Twitter) and replaces what would otherwis
 ### Sophia's Persona
 Sophia is a chain archaeologist. Cold, patient, sardonic. She scans BSC ruins every day looking for tokens still showing a heartbeat — dev commits, real community activity, non-zero on-chain signals. She never hypes. Never uses 🚀. Never says "100x". She speaks like a forensic analyst who moonlights as a dark-web archivist.
 
-### Token Discovery — On-Chain Scanner
-Beyond Sophia's dialogue, the backend runs an autonomous BSC chain scanner:
+---
+
+## 🔍 Token Discovery Pipeline
+
+MemeScavenger maintains a comprehensive database of every token that has ever graduated on the Four.meme platform, built through a two-stage collection process.
+
+### Stage 1 — Four.meme API Scraper
+The backend polls the Four.meme public API to collect all graduated tokens by listing type:
+
+- **NOR_DEX** — standard bonding-curve graduated tokens
+- **BIN_DEX** — binary DEX graduated tokens
+- Paginated with `sort=ASC` to ensure no token is missed across the full history
+
+### Stage 2 — On-Chain Scanner (Alchemy Node)
+Some tokens graduate via a direct liquidity path that is invisible to the Four.meme public API (`listType=None`). These are discovered exclusively through on-chain event scanning via an **Alchemy BSC node**:
 
 - Monitors the **Four.meme TokenManager2 contract** (`0x5c952063c7fc8610FFDB798152D69F0B9550762b`)
 - Listens for `LiquidityAdded` events (topic `0xc18aa711...`)
-- Discovers `listType=None` tokens invisible to the Four.meme public API
-- Supplements the API scraper (NOR_DEX + BIN_DEX tokens)
-- Persists scan cursor in DB — each run only fetches new blocks
+- Extracts the token address directly from event `data` — no pair resolution needed
+- Persists a scan cursor in DB so each run only fetches new blocks from where it left off
+
+Both pipelines write to the same `graduated_tokens` table. Duplicates are silently skipped via `INSERT IF NOT EXISTS`.
+
+### Stage 3 — Social Enrichment (CoinGecko API)
+Once a token is collected, its social profile is enriched using the **CoinGecko API**:
+
+- Fetches the official Twitter / X account handle, website, and Telegram link for each token
+- Only updates fields that are currently empty — existing data is never overwritten
+- Tokens without a CoinGecko listing are skipped gracefully
+
+The X handle collected here is what Grok later uses to search X and generate the community activity report.
 
 ---
 
