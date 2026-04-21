@@ -129,20 +129,41 @@ def _build_w3():
     return w3
 
 
-def get_demo_tokens() -> list[dict]:
+def get_demo_tokens(good_level: int) -> list[dict]:
+    """
+    Return tokens matching the requested Good level, with fallback.
+
+    Tier mapping:
+      Basic Pack  (tier 0) → Good = 1
+      Elite Chest (tier 1) → Good = 2
+      Mythic Crate(tier 2) → Good = 3
+
+    Fallback: if no tokens found at requested level, try level-1, then level-2.
+    e.g. Mythic tries Good=3 → Good=2 → Good=1 until a non-empty pool is found.
+    """
     with get_db() as conn:
         cur = conn.cursor()
-        cur.execute("""
-            SELECT address, name, symbol, img_url
-            FROM graduated_tokens
-            WHERE demo = 1
-            ORDER BY id
-        """)
-        rows = cur.fetchall()
-    return [
-        {"address": r[0], "name": r[1] or r[2], "symbol": r[2] or "?", "img_url": r[3]}
-        for r in rows
-    ]
+        for level in range(good_level, 0, -1):
+            cur.execute("""
+                SELECT address, name, symbol, img_url, Good
+                FROM graduated_tokens
+                WHERE Good = ?
+            """, level)
+            rows = cur.fetchall()
+            if rows:
+                logger.info(f"[demo_swap] token pool: Good={level}, count={len(rows)}"
+                            + (f" (fallback from Good={good_level})" if level < good_level else ""))
+                return [
+                    {
+                        "address": r[0],
+                        "name":    r[1] or r[2],
+                        "symbol":  r[2] or "?",
+                        "img_url": r[3],
+                        "good":    r[4],
+                    }
+                    for r in rows
+                ]
+    return []
 
 
 # ── Main entry point ──────────────────────────────────────────────────────────
@@ -160,11 +181,13 @@ def execute_demo_swap(user_wallet: str, tier: int) -> dict[str, Any]:
     if not settings.hot_wallet_address:
         raise RuntimeError("HOT_WALLET_ADDRESS is not configured on the server.")
 
-    all_tokens = get_demo_tokens()
+    # tier 0→Good=1, tier 1→Good=2, tier 2→Good=3; fallback to lower if empty
+    good_level  = tier + 1
+    all_tokens  = get_demo_tokens(good_level)
     if not all_tokens:
-        raise RuntimeError("No demo tokens configured.")
+        raise RuntimeError(f"No curated tokens found for tier {tier} (Good={good_level} or lower).")
 
-    # Pick exactly ONE token — full tier price goes to it
+    # Pick exactly ONE token at random from the matched pool
     demo_tokens = [_random.choice(all_tokens)]
 
     total_usdt  = TIER_USDT[tier]

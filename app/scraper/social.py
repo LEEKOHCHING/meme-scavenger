@@ -111,12 +111,17 @@ def _first_website(websites: list) -> str | None:
 # ── DB ────────────────────────────────────────────────────────────────────────
 
 def _get_unchecked(limit: int = 0) -> list[tuple]:
-    """Return tokens not yet checked against GeckoTerminal."""
+    """
+    Return tokens that still need a GeckoTerminal pass:
+      - never checked before (gt_checked_at IS NULL), OR
+      - checked before but img_url is still missing
+    """
     with get_db() as conn:
         cur = conn.cursor()
         sql = """
             SELECT address, symbol FROM graduated_tokens
             WHERE gt_checked_at IS NULL
+               OR img_url IS NULL
             ORDER BY launch_time DESC
         """
         if limit:
@@ -133,6 +138,7 @@ def _save_social(address: str, data: dict):
     telegram = _telegram_url(attr.get("telegram_handle"))
     website  = _first_website(attr.get("websites") or [])
     desc     = attr.get("description") or None
+    img_url  = attr.get("image_url") or None
 
     with get_db() as conn:
         conn.cursor().execute("""
@@ -141,9 +147,10 @@ def _save_social(address: str, data: dict):
                 telegram_url  = COALESCE(telegram_url, ?),
                 web_url       = COALESCE(web_url,      ?),
                 description   = COALESCE(description,  ?),
+                img_url       = COALESCE(img_url,      ?),
                 gt_checked_at = GETDATE()
             WHERE address = ?
-        """, twitter, telegram, website, desc, address)
+        """, twitter, telegram, website, desc, img_url, address)
 
 
 def _mark_checked(address: str):
