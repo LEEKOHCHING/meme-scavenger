@@ -628,11 +628,11 @@ main { padding: 44px 20px 60px; max-width: 1020px; margin: 0 auto; }
   flex-direction: column;
   align-items: center;
   gap: 4px;
-  width: 72px;
+  width: 110px;
   background: #111120;
   border: 1px solid #1e3a1e;
   border-radius: 8px;
-  padding: 8px 6px 6px;
+  padding: 8px 8px 6px;
 }
 .htok.htok-failed {
   border-color: #3a1010;
@@ -661,7 +661,8 @@ main { padding: 44px 20px 60px; max-width: 1020px; margin: 0 auto; }
 }
 
 .htok-sym {
-  font-size: 8px;
+  font-family: 'Zpix', monospace;
+  font-size: 13px;
   color: var(--green);
   letter-spacing: 0;
   text-align: center;
@@ -671,10 +672,11 @@ main { padding: 44px 20px 60px; max-width: 1020px; margin: 0 auto; }
 .htok-failed .htok-sym { color: #666; }
 
 .htok-amount {
-  font-size: 8px;
+  font-family: 'Zpix', monospace;
+  font-size: 13px;
   color: #39FF14;
   text-align: center;
-  word-break: break-all;
+  white-space: nowrap;
   line-height: 1.3;
   text-shadow: 0 0 6px rgba(57,255,20,.5);
 }
@@ -687,6 +689,76 @@ main { padding: 44px 20px 60px; max-width: 1020px; margin: 0 auto; }
   font-size: 10px;
   color: #333;
   letter-spacing: 2px;
+}
+
+.htok-report-btn {
+  font-family: 'Press Start 2P', monospace;
+  font-size: 9px;
+  color: var(--green);
+  letter-spacing: 1px;
+  cursor: pointer;
+  background: transparent;
+  border: 1px solid var(--green);
+  border-radius: 6px;
+  padding: 8px 14px;
+  margin-left: auto;
+  align-self: center;
+  white-space: nowrap;
+  transition: background .15s, box-shadow .15s;
+}
+.htok-report-btn:hover {
+  background: rgba(57,255,20,.12);
+  box-shadow: 0 0 10px rgba(57,255,20,.3);
+}
+
+/* ── Report Modal (from History) ── */
+.report-modal-box {
+  background: #090910;
+  border: 3px solid var(--green);
+  border-radius: 16px;
+  padding: 36px 40px 32px;
+  width: min(580px, 92vw);
+  max-height: 80vh;
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  overflow-y: auto;
+  box-shadow: 0 0 48px rgba(57,255,20,.2);
+  animation: pop-in .25s cubic-bezier(.34,1.56,.64,1);
+}
+.report-modal-box::-webkit-scrollbar { width: 4px; }
+.report-modal-box::-webkit-scrollbar-track { background: #0d0d1a; }
+.report-modal-box::-webkit-scrollbar-thumb { background: #1e3a1e; border-radius: 2px; }
+
+.report-modal-title {
+  font-size: 18px;
+  color: var(--green);
+  text-shadow: 0 0 10px var(--green);
+  letter-spacing: 3px;
+  text-align: center;
+  margin-bottom: 4px;
+}
+.report-modal-subtitle {
+  font-size: 8px;
+  color: #444;
+  letter-spacing: 3px;
+  text-align: center;
+  margin-bottom: 24px;
+}
+.report-modal-body {
+  flex: 1;
+  margin-bottom: 24px;
+}
+.report-modal-meta {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 16px;
+}
+.report-modal-date {
+  font-size: 8px;
+  color: #333;
+  letter-spacing: 1px;
 }
 
 /* ── CONFIRM PURCHASE MODAL ── */
@@ -1041,10 +1113,15 @@ main { padding: 44px 20px 60px; max-width: 1020px; margin: 0 auto; }
    DEMO SWAP RESULTS MODAL
    ═══════════════════════════════════════════════════════ */
 .swap-results-modal {
-  max-width: 420px;
+  max-width: 560px;
   width: 92%;
   padding: 36px 36px 28px;
+  max-height: 88vh;
+  overflow-y: auto;
 }
+.swap-results-modal::-webkit-scrollbar { width: 4px; }
+.swap-results-modal::-webkit-scrollbar-track { background: #0d0d1a; }
+.swap-results-modal::-webkit-scrollbar-thumb { background: #1e3a1e; border-radius: 2px; }
 
 /* Single-token hero card */
 .swap-solo-card {
@@ -1129,6 +1206,84 @@ main { padding: 44px 20px 60px; max-width: 1020px; margin: 0 auto; }
   color: #444;
   letter-spacing: 2px;
   margin-bottom: 18px;
+}
+
+/* ── Sophia's Analysis report block ── */
+.swap-report {
+  margin: 18px 0 16px;
+  border: 1px solid #1e3a1e;
+  border-radius: 10px;
+  background: #06080f;
+  overflow: hidden;
+}
+
+.swap-report-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 14px;
+  border-bottom: 1px solid #1e3a1e;
+  background: #090d10;
+}
+
+.swap-report-title {
+  font-size: 8px;
+  color: var(--green);
+  letter-spacing: 2px;
+  text-shadow: 0 0 6px rgba(57,255,20,.4);
+}
+
+.swap-report-badge {
+  font-size: 7px;
+  padding: 3px 8px;
+  border-radius: 4px;
+  letter-spacing: 1px;
+  border: 1px solid #333;
+  color: #555;
+}
+.swap-report-badge-fresh  { color: var(--green); border-color: var(--green); text-shadow: 0 0 4px rgba(57,255,20,.4); }
+.swap-report-badge-cached { color: #555;         border-color: #333; }
+
+.swap-report-body {
+  padding: 14px 16px;
+  min-height: 64px;
+}
+
+.swap-report-loading {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  color: #444;
+  font-size: 8px;
+  letter-spacing: 1px;
+}
+
+.swap-report-spinner {
+  width: 16px;
+  height: 16px;
+  border: 2px solid #1a2e1a;
+  border-top-color: var(--green);
+  border-radius: 50%;
+  animation: spin .9s linear infinite;
+  flex-shrink: 0;
+}
+
+.swap-report-para {
+  font-family: 'Zpix', 'Noto Sans SC', sans-serif;
+  font-size: 20px;
+  color: #888;
+  line-height: 2.0;
+  margin-bottom: 16px;
+  letter-spacing: 0.5px;
+}
+.swap-report-para:last-child { margin-bottom: 0; }
+
+.swap-report-empty {
+  font-size: 8px;
+  color: #333;
+  letter-spacing: 1px;
+  text-align: center;
+  padding: 8px 0;
 }
 
 /* Action buttons row */

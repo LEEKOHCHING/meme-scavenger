@@ -517,17 +517,9 @@ function showSwapResults(results, totalUsdt, feeUsdt) {
     ? `<div class="swap-solo-amount">+${r.received}</div>`
     : `<div class="swap-failed-msg">✗ Swap failed — no liquidity</div>`;
 
-  const dexUrl   = tok?.address
+  const dexUrl = tok?.address
     ? `https://dexscreener.com/bsc/${tok.address}`
     : null;
-  const tierName = ['Basic Pack','Elite Chest','Mythic Crate'][
-    document.querySelector && (() => {
-      // recover tier from price
-      if (totalUsdt === 10) return 0;
-      if (totalUsdt === 20) return 1;
-      return 2;
-    })()
-  ] || '';
 
   const overlay = document.createElement('div');
   overlay.className = 'modal-overlay';
@@ -541,14 +533,70 @@ function showSwapResults(results, totalUsdt, feeUsdt) {
         ${statusHtml}
       </div>
       <div class="swap-total-label">${totalUsdt} USDT → ${tok?.symbol || '?'} (fee ${feeUsdt ?? (totalUsdt * PLATFORM_FEE_PCT / 100).toFixed(2)} USDT)</div>
+
+      ${tok?.address ? `
+      <div class="swap-report">
+        <div class="swap-report-header">
+          <span class="swap-report-title">✦ SOPHIA'S ANALYSIS</span>
+          <span class="swap-report-badge" id="swap-report-badge">LOADING</span>
+        </div>
+        <div class="swap-report-body" id="swap-report-body">
+          <div class="swap-report-loading">
+            <div class="swap-report-spinner"></div>
+            <span>Loading…</span>
+          </div>
+        </div>
+      </div>` : ''}
+
       <div class="swap-action-row">
-        ${dexUrl ? `<button class="swap-btn swap-btn-analyze" onclick="window.open('${dexUrl}','_blank')">ANALYZE ↗</button>` : ''}
         <button class="swap-btn swap-btn-share" onclick="generateShareImage(${JSON.stringify(tok)}, '${r?.received || '?'}', ${totalUsdt})">SHARE</button>
         <button class="swap-btn swap-btn-done" onclick="this.closest('.modal-overlay').remove()">DONE</button>
       </div>
     </div>`;
   document.body.appendChild(overlay);
   overlay.addEventListener('click', e => { if (e.target === overlay) overlay.remove(); });
+
+  // Poll for report if we have a token address
+  if (tok?.address) {
+    _pollReport(tok.address, 0);
+  }
+}
+
+// Poll /api/report/{address} until report is ready (max 20 attempts × 4s = 80s)
+async function _pollReport(tokenAddress, attempt) {
+  const bodyEl  = document.getElementById('swap-report-body');
+  const badgeEl = document.getElementById('swap-report-badge');
+  if (!bodyEl) return;   // modal was closed
+
+  if (attempt >= 20) {
+    bodyEl.innerHTML  = '<div class="swap-report-empty">No analysis available for this token.</div>';
+    if (badgeEl) badgeEl.style.display = 'none';
+    return;
+  }
+
+  try {
+    const res = await fetch(`/api/report/${tokenAddress}`);
+    if (res.status === 404) {
+      // Still generating — retry
+      setTimeout(() => _pollReport(tokenAddress, attempt + 1), 4000);
+      return;
+    }
+    if (res.ok) {
+      const data = await res.json();
+      if (badgeEl) {
+        badgeEl.textContent = data.cached ? 'CACHED' : 'FRESH';
+        badgeEl.classList.add(data.cached ? 'swap-report-badge-cached' : 'swap-report-badge-fresh');
+      }
+      // Render report paragraphs
+      const paras = data.report.split(/\n\n+/).filter(Boolean);
+      bodyEl.innerHTML = paras.map(p =>
+        `<p class="swap-report-para">${p.replace(/\n/g, '<br>')}</p>`
+      ).join('');
+      return;
+    }
+  } catch { /* network error — retry */ }
+
+  setTimeout(() => _pollReport(tokenAddress, attempt + 1), 4000);
 }
 
 // ── Share image generator (Canvas) ──
@@ -920,11 +968,15 @@ async function openHistory() {
             const amt = t.success && t.amount
               ? `<span class="htok-amount">+${t.amount}</span>`
               : `<span class="htok-amount htok-fail">✗</span>`;
+            const reportBtn = t.address
+              ? `<button class="htok-report-btn" onclick="showReportModal('${t.address}','${t.symbol}')">REPORT</button>`
+              : '';
             return `<div class="htok ${t.success ? '' : 'htok-failed'}">
-              ${logo}
-              <span class="htok-sym">$${t.symbol}</span>
-              ${amt}
-            </div>`;
+                ${logo}
+                <span class="htok-sym">$${t.symbol}</span>
+                ${amt}
+              </div>
+              ${reportBtn}`;
           }).join('')
         : '<span class="history-empty-inline">—</span>';
 
@@ -948,6 +1000,56 @@ async function openHistory() {
 function closeHistoryModal(e) {
   if (e.target === document.getElementById('history-modal'))
     document.getElementById('history-modal').style.display = 'none';
+}
+
+// ── Token Report Modal (from History) ──
+async function showReportModal(tokenAddress, symbol) {
+  // Remove any existing report modal
+  const existing = document.getElementById('report-modal');
+  if (existing) existing.remove();
+
+  const overlay = document.createElement('div');
+  overlay.id = 'report-modal';
+  overlay.className = 'wallet-modal-overlay';
+  overlay.innerHTML = `
+    <div class="report-modal-box">
+      <div class="report-modal-title">$${symbol}</div>
+      <div class="report-modal-subtitle">SOPHIA'S ANALYSIS</div>
+      <div class="report-modal-body" id="report-modal-body">
+        <div class="swap-report-loading">
+          <div class="swap-report-spinner"></div>
+          <span>Loading…</span>
+        </div>
+      </div>
+      <button class="wallet-modal-cancel" onclick="document.getElementById('report-modal').remove()">CLOSE</button>
+    </div>`;
+  document.body.appendChild(overlay);
+  overlay.addEventListener('click', e => { if (e.target === overlay) overlay.remove(); });
+
+  // Fetch report
+  try {
+    const res = await fetch(`/api/report/${tokenAddress}`);
+    const bodyEl = document.getElementById('report-modal-body');
+    if (!bodyEl) return;
+
+    if (res.ok) {
+      const data = await res.json();
+      const paras = data.report.split(/\n\n+/).filter(Boolean);
+      const badge = data.cached ? 'CACHED' : 'FRESH';
+      const badgeCls = data.cached ? 'swap-report-badge-cached' : 'swap-report-badge-fresh';
+      bodyEl.innerHTML =
+        `<div class="report-modal-meta">
+           <span class="swap-report-badge ${badgeCls}">${badge}</span>
+           <span class="report-modal-date">${new Date(data.generated_at).toLocaleDateString()}</span>
+         </div>` +
+        paras.map(p => `<p class="swap-report-para">${p.replace(/\n/g,'<br>')}</p>`).join('');
+    } else {
+      bodyEl.innerHTML = '<div class="swap-report-empty">No analysis available for this token yet.</div>';
+    }
+  } catch {
+    const bodyEl = document.getElementById('report-modal-body');
+    if (bodyEl) bodyEl.innerHTML = '<div class="swap-report-empty">Failed to load report.</div>';
+  }
 }
 
 // ── Help modal ──

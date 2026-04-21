@@ -3,15 +3,17 @@ Demo mode API routes.
 
 POST /api/demo/deliver  — after user pays contract, server swaps demo tokens and delivers to user
 """
+import asyncio
 import logging
 import random
 
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, BackgroundTasks, HTTPException
 from pydantic import BaseModel
 
 from ..database import get_db
 from ..live_logger import log_event
 from ..services.demo_swap import execute_demo_swap
+from ..services.token_report import get_or_create_report
 
 logger = logging.getLogger(__name__)
 router = APIRouter(prefix="/api/demo", tags=["demo"])
@@ -106,8 +108,16 @@ def _record_purchase(wallet: str, tier: int, tx_hash: str, swaps: list) -> int |
         return None
 
 
+def _trigger_report(token_address: str):
+    """Run get_or_create_report in a background thread (fire-and-forget)."""
+    try:
+        asyncio.run(get_or_create_report(token_address))
+    except Exception as exc:
+        logger.warning(f"[demo/deliver] background report failed for {token_address}: {exc}")
+
+
 @router.post("/deliver")
-def demo_deliver(req: DeliverRequest):
+def demo_deliver(req: DeliverRequest, background_tasks: BackgroundTasks):
     """
     Called after the user's contract buy() tx is confirmed.
     The server's hot wallet (pre-funded with USDT) swaps each demo token
@@ -134,5 +144,12 @@ def demo_deliver(req: DeliverRequest):
 
     # Record purchase + all swap results after successful delivery
     _record_purchase(req.wallet, req.tier, req.tx_hash, result.get("swaps", []))
+
+    # Trigger report generation in background for each successfully swapped token
+    for swap in result.get("swaps", []):
+        if swap.get("success"):
+            token_address = swap.get("token", {}).get("address")
+            if token_address:
+                background_tasks.add_task(_trigger_report, token_address)
 
     return result

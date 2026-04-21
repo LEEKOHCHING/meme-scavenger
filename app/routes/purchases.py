@@ -194,7 +194,7 @@ def get_history(wallet: str):
         cur.execute(
             f"""
             SELECT purchase_id, token_symbol, token_name, img_url,
-                   amount_received, success
+                   amount_received, success, token_address
             FROM purchase_tokens
             WHERE purchase_id IN ({id_placeholders})
             ORDER BY purchase_id, id
@@ -213,6 +213,7 @@ def get_history(wallet: str):
             "img_url":  t.img_url,
             "amount":   t.amount_received,
             "success":  bool(t.success),
+            "address":  t.token_address,
         })
 
     return [
