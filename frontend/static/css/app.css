@@ -1244,6 +1244,28 @@ main { padding: 44px 20px 60px; max-width: 1020px; margin: 0 auto; }
 .swap-report-badge-fresh  { color: var(--green); border-color: var(--green); text-shadow: 0 0 4px rgba(57,255,20,.4); }
 .swap-report-badge-cached { color: #555;         border-color: #333; }
 
+/* ── X Score bar ── */
+.swap-report-score {
+  font-family: 'Zpix', monospace;
+  font-size: 14px;
+  letter-spacing: 2px;
+  text-align: center;
+  padding: 10px 16px 6px;
+  border-bottom: 1px solid #1a2e1a;
+  margin-bottom: 4px;
+}
+.swap-report-score span {
+  font-size: 28px;
+  font-weight: bold;
+  margin: 0 4px;
+  vertical-align: middle;
+}
+.score-high     { color: #39ff14; text-shadow: 0 0 10px rgba(57,255,20,.6); }
+.score-active   { color: #7fff00; text-shadow: 0 0 8px rgba(127,255,0,.4); }
+.score-moderate { color: #ffd700; text-shadow: 0 0 8px rgba(255,215,0,.4); }
+.score-low      { color: #ff8c00; }
+.score-dead     { color: #555; }
+
 .swap-report-body {
   padding: 14px 16px;
   min-height: 64px;

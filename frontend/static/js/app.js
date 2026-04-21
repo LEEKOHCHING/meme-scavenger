@@ -562,6 +562,27 @@ function showSwapResults(results, totalUsdt, feeUsdt) {
   }
 }
 
+// Return CSS class for score colour band
+function _scoreCls(score) {
+  if (score >= 86) return 'score-high';
+  if (score >= 66) return 'score-active';
+  if (score >= 41) return 'score-moderate';
+  if (score >= 11) return 'score-low';
+  return 'score-dead';
+}
+
+// Render score + report paragraphs into a container element
+function _renderReport(bodyEl, data) {
+  const score = data.score;
+  const scoreHtml = score != null
+    ? `<div class="swap-report-score ${_scoreCls(score)}">SCORE <span>${score}</span> / 100</div>`
+    : `<div class="swap-report-score score-dead">SCORE <span>—</span> / 100</div>`;
+  const paras = (data.report || '').split(/\n\n+/).filter(Boolean);
+  bodyEl.innerHTML = scoreHtml + paras.map(p =>
+    `<p class="swap-report-para">${p.replace(/\n/g, '<br>')}</p>`
+  ).join('');
+}
+
 // Poll /api/report/{address} until report is ready (max 20 attempts × 4s = 80s)
 async function _pollReport(tokenAddress, attempt) {
   const bodyEl  = document.getElementById('swap-report-body');
@@ -583,15 +604,8 @@ async function _pollReport(tokenAddress, attempt) {
     }
     if (res.ok) {
       const data = await res.json();
-      if (badgeEl) {
-        badgeEl.textContent = data.cached ? 'CACHED' : 'FRESH';
-        badgeEl.classList.add(data.cached ? 'swap-report-badge-cached' : 'swap-report-badge-fresh');
-      }
-      // Render report paragraphs
-      const paras = data.report.split(/\n\n+/).filter(Boolean);
-      bodyEl.innerHTML = paras.map(p =>
-        `<p class="swap-report-para">${p.replace(/\n/g, '<br>')}</p>`
-      ).join('');
+      if (badgeEl) badgeEl.style.display = 'none';
+      _renderReport(bodyEl, data);
       return;
     }
   } catch { /* network error — retry */ }
@@ -1034,15 +1048,7 @@ async function showReportModal(tokenAddress, symbol) {
 
     if (res.ok) {
       const data = await res.json();
-      const paras = data.report.split(/\n\n+/).filter(Boolean);
-      const badge = data.cached ? 'CACHED' : 'FRESH';
-      const badgeCls = data.cached ? 'swap-report-badge-cached' : 'swap-report-badge-fresh';
-      bodyEl.innerHTML =
-        `<div class="report-modal-meta">
-           <span class="swap-report-badge ${badgeCls}">${badge}</span>
-           <span class="report-modal-date">${new Date(data.generated_at).toLocaleDateString()}</span>
-         </div>` +
-        paras.map(p => `<p class="swap-report-para">${p.replace(/\n/g,'<br>')}</p>`).join('');
+      _renderReport(bodyEl, data);
     } else {
       bodyEl.innerHTML = '<div class="swap-report-empty">No analysis available for this token yet.</div>';
     }
