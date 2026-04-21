@@ -711,6 +711,196 @@ main { padding: 44px 20px 60px; max-width: 1020px; margin: 0 auto; }
   box-shadow: 0 0 10px rgba(57,255,20,.3);
 }
 
+/* ── Hackathon button ── */
+.hdr-hackathon-btn {
+  border-color: var(--orange) !important;
+  color: var(--orange) !important;
+  text-shadow: 0 0 6px var(--orange);
+  font-size: 11px !important;
+}
+.hdr-hackathon-btn:hover {
+  border-color: #fff !important;
+  color: #fff !important;
+  text-shadow: none;
+}
+
+/* ── Leaderboard Modal ── */
+.lb-box {
+  background: #090910;
+  border: 3px solid var(--orange);
+  border-radius: 16px;
+  padding: 28px 32px 28px;
+  width: min(860px, 96vw);
+  max-height: 90vh;
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  box-shadow: 0 0 48px rgba(255,140,0,.2);
+  animation: pop-in .25s cubic-bezier(.34,1.56,.64,1);
+}
+
+.lb-judge-banner {
+  background: #1a0d00;
+  border: 1px solid var(--orange);
+  border-radius: 8px;
+  color: var(--orange);
+  font-family: 'Zpix', monospace;
+  font-size: 18px;
+  line-height: 1.8;
+  padding: 10px 14px;
+  margin-bottom: 18px;
+  letter-spacing: .5px;
+}
+
+.lb-title {
+  font-family: 'Press Start 2P', monospace;
+  font-size: 14px;
+  color: var(--orange);
+  text-shadow: 0 0 10px var(--orange);
+  letter-spacing: 3px;
+  text-align: center;
+  margin-bottom: 4px;
+}
+
+.lb-subtitle {
+  font-family: 'Press Start 2P', monospace;
+  font-size: 7px;
+  color: #555;
+  text-align: center;
+  letter-spacing: 2px;
+  margin-bottom: 20px;
+}
+
+.lb-table-wrap {
+  flex: 1;
+  overflow-y: auto;
+  border: 1px solid #1a1a2e;
+  border-radius: 8px;
+  margin-bottom: 16px;
+}
+.lb-table-wrap::-webkit-scrollbar { width: 4px; }
+.lb-table-wrap::-webkit-scrollbar-track { background: #0d0d1a; }
+.lb-table-wrap::-webkit-scrollbar-thumb { background: #2a1a00; border-radius: 2px; }
+
+.lb-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-family: 'Zpix', monospace;
+  font-size: 13px;
+}
+
+.lb-th {
+  font-family: 'Press Start 2P', monospace;
+  font-size: 7px;
+  color: #555;
+  letter-spacing: 1px;
+  padding: 10px 12px;
+  border-bottom: 1px solid #1a1a2e;
+  text-align: left;
+  background: #0d0d1a;
+  position: sticky;
+  top: 0;
+}
+.lb-th-rank   { width: 40px;  text-align: center; }
+.lb-th-logo   { width: 40px; }
+.lb-th-score  { width: 72px;  text-align: center; }
+.lb-th-action { width: 80px;  text-align: center; }
+
+.lb-row { border-bottom: 1px solid #0f0f1e; transition: background .15s; }
+.lb-row:hover { background: #0d1a0d; }
+
+.lb-td { padding: 10px 12px; vertical-align: middle; }
+.lb-td-rank { text-align: center; color: #444; font-family: 'Press Start 2P', monospace; font-size: 8px; }
+.lb-td-logo { width: 40px; }
+.lb-td-score { text-align: center; }
+.lb-td-action { text-align: center; }
+
+.lb-logo {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  object-fit: cover;
+  display: block;
+}
+.lb-logo-fb { font-size: 24px; line-height: 1; }
+
+.lb-name {
+  display: block;
+  color: var(--green);
+  font-size: 15px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 180px;
+}
+.lb-sym {
+  display: block;
+  color: #bbb;
+  font-size: 14px;
+  margin-top: 2px;
+}
+
+.lb-addr {
+  font-family: monospace;
+  font-size: 13px;
+  color: #444;
+  cursor: default;
+}
+
+.lb-score {
+  font-family: 'Press Start 2P', monospace;
+  font-size: 13px;
+  font-weight: bold;
+}
+
+.lb-report-btn {
+  background: transparent;
+  border: 1px solid var(--green);
+  color: var(--green);
+  font-family: 'Press Start 2P', monospace;
+  font-size: 7px;
+  padding: 5px 8px;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background .15s;
+}
+.lb-report-btn:hover { background: rgba(57,255,20,.1); }
+.lb-no-report { color: #333; font-size: 12px; }
+
+.lb-loading {
+  text-align: center;
+  padding: 40px;
+  color: #444;
+  font-family: 'Press Start 2P', monospace;
+  font-size: 9px;
+}
+
+.lb-pagination {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  padding: 4px 0 16px;
+}
+.lb-pg-btn {
+  background: transparent;
+  border: 1px solid #333;
+  color: #aaa;
+  font-family: 'Press Start 2P', monospace;
+  font-size: 8px;
+  padding: 8px 14px;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: border-color .15s, color .15s;
+}
+.lb-pg-btn:hover { border-color: var(--orange); color: var(--orange); }
+.lb-pg-info {
+  font-family: 'Press Start 2P', monospace;
+  font-size: 8px;
+  color: #444;
+  letter-spacing: 1px;
+}
+
 /* ── Report Modal (from History) ── */
 .report-modal-box {
   background: #090910;

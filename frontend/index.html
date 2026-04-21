@@ -19,6 +19,7 @@
     <div class="hdr-left">
       <div class="hdr-text-btn" title="Help" onclick="openHelp()"><span>Help</span></div>
       <div class="hdr-text-btn" title="My Purchases" onclick="openHistory()"><span>History</span></div>
+      <div class="hdr-text-btn hdr-hackathon-btn" title="Hackathon Leaderboard" onclick="openLeaderboard()"><span>✦ HACKATHON</span></div>
     </div>
 
     <div class="site-title">
@@ -153,6 +154,34 @@
     </div>
 
     <button class="wallet-modal-cancel" onclick="document.getElementById('help-modal').style.display='none'">CLOSE</button>
+  </div>
+</div>
+
+<!-- LEADERBOARD MODAL -->
+<div id="leaderboard-modal" class="wallet-modal-overlay" style="display:none" onclick="closeLeaderboardModal(event)">
+  <div class="lb-box">
+    <div class="lb-judge-banner">⚠ FOR HACKATHON JUDGES ONLY — This screen is not part of the normal user flow. It demonstrates that every graduated token on Four.meme has been collected, analyzed, and scored by AI.</div>
+    <div class="lb-title">✦ AI SCORE LEADERBOARD ✦</div>
+    <div class="lb-subtitle">All Four.meme graduated tokens · Ranked by Grok community score</div>
+    <div class="lb-table-wrap">
+      <table class="lb-table">
+        <thead>
+          <tr>
+            <th class="lb-th lb-th-rank">#</th>
+            <th class="lb-th lb-th-logo"></th>
+            <th class="lb-th lb-th-name">TOKEN</th>
+            <th class="lb-th lb-th-addr">CONTRACT</th>
+            <th class="lb-th lb-th-score">SCORE</th>
+            <th class="lb-th lb-th-action"></th>
+          </tr>
+        </thead>
+        <tbody id="lb-tbody">
+          <tr><td colspan="6" class="lb-loading">Loading…</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="lb-pagination" id="lb-pagination"></div>
+    <button class="wallet-modal-cancel" onclick="document.getElementById('leaderboard-modal').style.display='none'">CLOSE</button>
   </div>
 </div>
 

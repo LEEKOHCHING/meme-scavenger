@@ -1058,6 +1058,110 @@ async function showReportModal(tokenAddress, symbol) {
   }
 }
 
+// ── Leaderboard modal ──────────────────────────────────────────────────────────
+
+let _lbPage = 1;
+const _LB_LIMIT = 20;
+
+function openLeaderboard() {
+  document.getElementById('leaderboard-modal').style.display = 'flex';
+  _lbPage = 1;
+  _loadLeaderboard(1);
+}
+
+function closeLeaderboardModal(e) {
+  if (e.target === document.getElementById('leaderboard-modal'))
+    document.getElementById('leaderboard-modal').style.display = 'none';
+}
+
+async function _loadLeaderboard(page) {
+  _lbPage = page;
+  const tbody = document.getElementById('lb-tbody');
+  const pag   = document.getElementById('lb-pagination');
+  tbody.innerHTML = `<tr><td colspan="6" class="lb-loading">Loading…</td></tr>`;
+  pag.innerHTML   = '';
+
+  try {
+    const res  = await fetch(`/api/leaderboard?page=${page}&limit=${_LB_LIMIT}`);
+    const data = await res.json();
+
+    if (!data.tokens.length) {
+      tbody.innerHTML = `<tr><td colspan="6" class="lb-loading">No scored tokens yet.</td></tr>`;
+      return;
+    }
+
+    const offset = (page - 1) * _LB_LIMIT;
+    tbody.innerHTML = data.tokens.map((t, i) => {
+      const rank    = offset + i + 1;
+      const logo    = t.img_url
+        ? `<img src="${t.img_url}" alt="${t.symbol}" class="lb-logo" onerror="this.outerHTML='<span class=\\'lb-logo-fb\\'>🪙</span>'">`
+        : `<span class="lb-logo-fb">🪙</span>`;
+      const short   = t.address ? t.address.slice(0, 6) + '…' + t.address.slice(-4) : '—';
+      const scoreCls = _scoreCls(t.score);
+      const reportBtn = t.report
+        ? `<button class="lb-report-btn" onclick="_lbShowReport('${t.symbol}', this)">REPORT</button>`
+        : `<span class="lb-no-report">—</span>`;
+
+      return `<tr class="lb-row" data-report="${encodeURIComponent(t.report || '')}">
+        <td class="lb-td lb-td-rank">${rank}</td>
+        <td class="lb-td lb-td-logo">${logo}</td>
+        <td class="lb-td lb-td-name">
+          <span class="lb-name">${t.name || t.symbol}</span>
+          <span class="lb-sym">$${t.symbol}</span>
+        </td>
+        <td class="lb-td lb-td-addr">
+          <span class="lb-addr" title="${t.address}">${short}</span>
+        </td>
+        <td class="lb-td lb-td-score">
+          <span class="lb-score ${scoreCls}">${t.score}</span>
+        </td>
+        <td class="lb-td lb-td-action">${reportBtn}</td>
+      </tr>`;
+    }).join('');
+
+    // Pagination
+    if (data.pages > 1) {
+      const btns = [];
+      if (page > 1)          btns.push(`<button class="lb-pg-btn" onclick="_loadLeaderboard(${page-1})">‹ PREV</button>`);
+      btns.push(`<span class="lb-pg-info">${page} / ${data.pages} &nbsp;(${data.total} tokens)</span>`);
+      if (page < data.pages) btns.push(`<button class="lb-pg-btn" onclick="_loadLeaderboard(${page+1})">NEXT ›</button>`);
+      pag.innerHTML = btns.join('');
+    } else {
+      pag.innerHTML = `<span class="lb-pg-info">${data.total} tokens scored</span>`;
+    }
+
+  } catch(e) {
+    tbody.innerHTML = `<tr><td colspan="6" class="lb-loading">Failed to load.</td></tr>`;
+  }
+}
+
+function _lbShowReport(symbol, btn) {
+  const row    = btn.closest('tr');
+  const report = decodeURIComponent(row.dataset.report || '');
+  if (!report) return;
+
+  const existing = document.getElementById('report-modal');
+  if (existing) existing.remove();
+
+  const overlay = document.createElement('div');
+  overlay.id = 'report-modal';
+  overlay.className = 'wallet-modal-overlay';
+  overlay.innerHTML = `
+    <div class="report-modal-box">
+      <div class="report-modal-title">$${symbol}</div>
+      <div class="report-modal-subtitle">SOPHIA'S ANALYSIS</div>
+      <div class="report-modal-body" id="report-modal-body"></div>
+      <button class="wallet-modal-cancel" onclick="document.getElementById('report-modal').remove()">CLOSE</button>
+    </div>`;
+  document.body.appendChild(overlay);
+  overlay.addEventListener('click', e => { if (e.target === overlay) overlay.remove(); });
+
+  // Find score from the row
+  const scoreEl = row.querySelector('.lb-score');
+  const score   = scoreEl ? parseInt(scoreEl.textContent) : null;
+  _renderReport(document.getElementById('report-modal-body'), { report, score });
+}
+
 // ── Help modal ──
 function openHelp() {
   document.getElementById('help-modal').style.display = 'flex';
