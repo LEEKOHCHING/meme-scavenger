@@ -58,63 +58,51 @@ DELAY_SECONDS = 5   # between calls — be polite to the API
 _SYSTEM = """\
 You are a crypto community analyst scoring meme tokens based on their X (Twitter) activity.
 
-STEP 1 — Check account status (if an official handle is provided):
-  - Look up the official X account.
-  - If the account is SUSPENDED, DEACTIVATED, or does NOT EXIST, return immediately:
-    {"score": 0, "report": "The official X account is suspended or no longer active. No community activity can be assessed."}
-  - Do not proceed to step 2 if the account is suspended.
+Your job:
+1. Search X for posts about the given token published strictly within the last 30 days.
+   - Use today's date (provided in the prompt) as the reference point.
+   - A post counts only if it was published on or after (today minus 30 days).
+   - Do NOT include posts older than 30 days, even if they are the most recent ones available.
+   - If the most recent post you can find is older than 30 days, treat the last-30-day count as zero.
 
-STEP 2 — Search for recent posts:
-  - Search X for posts mentioning this token published WITHIN THE LAST 30 DAYS ONLY.
-  - TODAY's date is your reference point. Do not use posts older than 30 days.
-  - If you find posts but cannot confirm they are within the last 30 days, treat them as outside the window.
-  - Count only posts dated within the last 30 days.
+2. Score the community activity (0-100) based solely on last-30-day posts:
+   0-10   No posts found in the last 30 days — community silent or account gone
+   11-40  Minimal — only a handful of sporadic posts, low engagement
+   41-65  Moderate — some genuine community pulse with real interactions
+   66-85  Active — regular posts, real engagement, visible momentum
+   86-100 Strong — high conviction community, sustained daily activity
 
-STEP 3 — Score and report:
-  Return a JSON object with exactly two fields:
-    - "score": integer 0-100
-    - "report": string (3-4 paragraphs, under 300 words total)
+3. Write a report (3-4 paragraphs, under 300 words):
+   - State how many posts you found in the last 30 days and when the most recent one was.
+   - If score >= 20: cautiously optimistic, cite specific signals you found.
+   - If score < 20: honest and neutral — do not manufacture optimism.
+   - Never say "100x", "moon", "guaranteed", or predict price.
+   - No bullet points, no headers — prose only.
 
-Score guide (based strictly on last-30-day activity):
-  0-10   Account suspended, or no posts found in the last 30 days
-  11-40  Minimal activity — only a few sporadic posts, low engagement
-  41-65  Moderate — some genuine community pulse with real interactions
-  66-85  Active — regular posts, real engagement, visible momentum
-  86-100 Strong signals — high conviction community, sustained daily activity
-
-Report tone:
-  - If score >= 20: cautiously optimistic, cite specific signals and approximate post counts
-  - If score < 20: honest and neutral — do not manufacture optimism
-  - Never say "100x", "moon", "guaranteed", or predict price
-  - No bullet points, no headers — prose only
-  - Mention the timeframe: "in the last 30 days"
-
-Return ONLY the raw JSON object. No markdown, no explanation outside the JSON.
+Return ONLY a raw JSON object with exactly two fields:
+{"score": <int>, "report": "<text>"}
+No markdown, no explanation outside the JSON.
 """
 
 
 def _build_prompt(token: dict) -> str:
-    from datetime import datetime, timezone
-    today = datetime.now(timezone.utc).strftime("%Y-%m-%d")
+    from datetime import datetime, timezone, timedelta
+    today     = datetime.now(timezone.utc).date()
+    cutoff    = today - timedelta(days=30)
 
     name   = token.get("name") or token.get("symbol")
     symbol = token.get("symbol", "?")
     handle = token.get("twitter_handle")
 
-    parts = [f"Today's date: {today}."]
+    parts = [f"Today's date: {today}. Only count posts published on or after {cutoff}."]
     parts.append(f"Meme token: {name} (${symbol}) on BNB Smart Chain.")
     if handle:
-        parts.append(
-            f"Official X account: @{handle}. "
-            f"First check if @{handle} is suspended or deactivated. "
-            f"If suspended, return score 0 immediately."
-        )
+        parts.append(f"Official X account: @{handle}.")
     if token.get("description"):
         parts.append(f"Description: {token['description']}.")
     parts.append(
-        f"Search X for posts about this token published between {today} minus 30 days and {today}. "
-        "Only count posts within this 30-day window. "
-        "Score the community activity (0-100) and write a short analysis report. "
+        f"Search X for posts about this token published between {cutoff} and {today}. "
+        "Score the last-30-day community activity (0-100) and write a report. "
         "Return only a JSON object: {\"score\": <int>, \"report\": \"<text>\"}"
     )
     return " ".join(parts)
