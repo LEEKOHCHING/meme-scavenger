@@ -188,7 +188,19 @@ async def call_grok(prompt: str) -> dict | None:
             raw = re.sub(r"^```(?:json)?\s*", "", raw)
             raw = re.sub(r"\s*```$", "", raw)
 
-            return json.loads(raw)
+            # Parse with raw_decode to be tolerant, then extract score+report manually
+            try:
+                data = json.loads(raw)
+            except json.JSONDecodeError:
+                # Fallback: extract score and report via regex to handle embedded newlines
+                score_m  = re.search(r'"score"\s*:\s*(\d+)', raw)
+                report_m = re.search(r'"report"\s*:\s*"([\s\S]*?)"\s*}', raw)
+                if score_m and report_m:
+                    report_text = report_m.group(1).replace('\n', ' ').replace('\r', '').strip()
+                    data = {"score": int(score_m.group(1)), "report": report_text}
+                else:
+                    raise
+            return data
 
     except json.JSONDecodeError as exc:
         logger.warning(f"[grok] JSON parse error: {exc} | raw: {raw[:200]}")
