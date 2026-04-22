@@ -59,13 +59,13 @@ _SYSTEM = """\
 You are a crypto community analyst scoring meme tokens based on their X (Twitter) activity.
 
 Your job:
-1. Search X for posts about the given token published strictly within the last 30 days.
+1. Search X for posts about the given token published strictly within the last 7 days.
    - Use today's date (provided in the prompt) as the reference point.
-   - A post counts only if it was published on or after (today minus 30 days).
-   - Do NOT include posts older than 30 days, even if they are the most recent ones available.
-   - If the most recent post you can find is older than 30 days, treat the last-30-day count as zero.
+   - A post counts only if it was published on or after (today minus 7 days).
+   - Do NOT include posts older than 7 days, even if they are the most recent ones available.
+   - If the most recent post you can find is older than 7 days, treat the last-7-day count as zero.
 
-2. Score the community activity (0-100) based solely on last-30-day posts:
+2. Score the community activity (0-100) based solely on last-7-day posts:
    0-10   No posts found in the last 30 days — community silent or account gone
    11-40  Minimal — only a handful of sporadic posts, low engagement
    41-65  Moderate — some genuine community pulse with real interactions
@@ -73,7 +73,7 @@ Your job:
    86-100 Strong — high conviction community, sustained daily activity
 
 3. Write a report (3-4 paragraphs, under 300 words):
-   - State how many posts you found in the last 30 days and when the most recent one was.
+   - State how many posts you found in the last 7 days and when the most recent one was.
    - If score >= 20: cautiously optimistic, cite specific signals you found.
    - If score < 20: honest and neutral — do not manufacture optimism.
    - Never say "100x", "moon", "guaranteed", or predict price.
@@ -88,7 +88,7 @@ No markdown, no explanation outside the JSON.
 def _build_prompt(token: dict) -> str:
     from datetime import datetime, timezone, timedelta
     today     = datetime.now(timezone.utc).date()
-    cutoff    = today - timedelta(days=30)
+    cutoff    = today - timedelta(days=7)
 
     name   = token.get("name") or token.get("symbol")
     symbol = token.get("symbol", "?")
@@ -102,7 +102,7 @@ def _build_prompt(token: dict) -> str:
         parts.append(f"Description: {token['description']}.")
     parts.append(
         f"Search X for posts about this token published between {cutoff} and {today}. "
-        "Score the last-30-day community activity (0-100) and write a report. "
+        "Score the last-7-day community activity (0-100) and write a report. "
         "Return only a JSON object: {\"score\": <int>, \"report\": \"<text>\"}"
     )
     return " ".join(parts)
