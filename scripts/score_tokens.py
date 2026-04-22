@@ -56,25 +56,29 @@ DELAY_SECONDS = 5   # between calls — be polite to the API
 # ── Prompt ────────────────────────────────────────────────────────────────────
 
 _SYSTEM = """\
-You are a crypto community analyst scoring meme tokens based on their X (Twitter) activity.
+You are a crypto community analyst evaluating whether a meme token's official X account is still active.
 
 Your job:
-1. Search X for posts about the given token published strictly within the last 7 days.
-   - Use today's date (provided in the prompt) as the reference point.
-   - A post counts only if it was published on or after (today minus 7 days).
-   - Do NOT include posts older than 7 days, even if they are the most recent ones available.
-   - If the most recent post you can find is older than 7 days, treat the last-7-day count as zero.
+1. Go to the official X account profile provided (e.g. @handle).
+   - Look ONLY at posts published BY that account itself.
+   - Do NOT search the broader X platform for token name or symbol mentions.
+   - Do NOT include replies or posts from other accounts — only the account's own tweets.
 
-2. Score the community activity (0-100) based solely on last-7-day posts:
-   0-10   No posts found in the last 30 days — community silent or account gone
-   11-40  Minimal — only a handful of sporadic posts, low engagement
-   41-65  Moderate — some genuine community pulse with real interactions
-   66-85  Active — regular posts, real engagement, visible momentum
-   86-100 Strong — high conviction community, sustained daily activity
+2. Count posts published BY that account in the last 7 days (cutoff date is provided).
+   - Only count posts dated on or after the cutoff date.
+   - If the most recent post is older than the cutoff, the count is zero.
 
-3. Write a report (3-4 paragraphs, under 300 words):
-   - State how many posts you found in the last 7 days and when the most recent one was.
-   - If score >= 20: cautiously optimistic, cite specific signals you found.
+3. Score the account's own posting activity (0-100):
+   0-10   Zero posts in the last 7 days — account silent or abandoned
+   11-40  1-2 posts — minimal activity
+   41-65  3-6 posts — moderate activity, some engagement
+   66-85  7-14 posts — active, regular updates
+   86-100 15+ posts — highly active, strong momentum
+
+4. Write a report (3-4 paragraphs, under 300 words):
+   - State the exact number of posts this account published in the last 7 days.
+   - Describe the content and tone of those posts.
+   - If score >= 20: cautiously optimistic, cite what you actually observed.
    - If score < 20: honest and neutral — do not manufacture optimism.
    - Never say "100x", "moon", "guaranteed", or predict price.
    - No bullet points, no headers — prose only.
@@ -87,25 +91,28 @@ No markdown, no explanation outside the JSON.
 
 def _build_prompt(token: dict) -> str:
     from datetime import datetime, timezone, timedelta
-    today     = datetime.now(timezone.utc).date()
-    cutoff    = today - timedelta(days=7)
+    today  = datetime.now(timezone.utc).date()
+    cutoff = today - timedelta(days=7)
 
     name   = token.get("name") or token.get("symbol")
     symbol = token.get("symbol", "?")
     handle = token.get("twitter_handle")
 
-    parts = [f"Today's date: {today}. Only count posts published on or after {cutoff}."]
-    parts.append(f"Meme token: {name} (${symbol}) on BNB Smart Chain.")
-    if handle:
-        parts.append(f"Official X account: @{handle}.")
-    if token.get("description"):
-        parts.append(f"Description: {token['description']}.")
-    parts.append(
-        f"Search X for posts about this token published between {cutoff} and {today}. "
-        "Score the last-7-day community activity (0-100) and write a report. "
-        "Return only a JSON object: {\"score\": <int>, \"report\": \"<text>\"}"
+    if not handle:
+        return (
+            f"Meme token: {name} (${symbol}). No official X account available. "
+            "Return: {\"score\": 0, \"report\": \"No official X account is linked for this token. Activity cannot be assessed.\"}"
+        )
+
+    return (
+        f"Today's date: {today}. Cutoff date (7 days ago): {cutoff}. "
+        f"Meme token: {name} (${symbol}) on BNB Smart Chain. "
+        f"Official X account: @{handle}. "
+        f"Visit the profile of @{handle} and count posts published BY @{handle} between {cutoff} and {today}. "
+        "Do NOT search for the token name or symbol across X — only look at this account's own posts. "
+        "Score the account's posting activity (0-100) and write a report. "
+        "Return only: {\"score\": <int>, \"report\": \"<text>\"}"
     )
-    return " ".join(parts)
 
 
 # ── DB helpers ─────────────────────────────────────────────────────────────────
