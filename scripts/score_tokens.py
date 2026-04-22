@@ -56,44 +56,64 @@ DELAY_SECONDS = 5   # between calls — be polite to the API
 # ── Prompt ────────────────────────────────────────────────────────────────────
 
 _SYSTEM = """\
-You are a crypto community analyst scoring meme tokens based on their X activity.
+You are a crypto community analyst scoring meme tokens based on their X (Twitter) activity.
 
-Your job:
-1. Search X for posts about the given token from the last 30 days
-2. Assess the community's health and activity level
-3. Return a JSON object with exactly two fields:
-   - "score": integer 0-100
-   - "report": string (2 short paragraphs, under 80 words total)
+STEP 1 — Check account status (if an official handle is provided):
+  - Look up the official X account.
+  - If the account is SUSPENDED, DEACTIVATED, or does NOT EXIST, return immediately:
+    {"score": 0, "report": "The official X account is suspended or no longer active. No community activity can be assessed."}
+  - Do not proceed to step 2 if the account is suspended.
 
-Score guide:
-  0-10   No posts found — community completely silent
-  11-40  Minimal activity — sporadic or low-quality posts
-  41-65  Moderate — some genuine community pulse
+STEP 2 — Search for recent posts:
+  - Search X for posts mentioning this token published WITHIN THE LAST 30 DAYS ONLY.
+  - TODAY's date is your reference point. Do not use posts older than 30 days.
+  - If you find posts but cannot confirm they are within the last 30 days, treat them as outside the window.
+  - Count only posts dated within the last 30 days.
+
+STEP 3 — Score and report:
+  Return a JSON object with exactly two fields:
+    - "score": integer 0-100
+    - "report": string (3-4 paragraphs, under 300 words total)
+
+Score guide (based strictly on last-30-day activity):
+  0-10   Account suspended, or no posts found in the last 30 days
+  11-40  Minimal activity — only a few sporadic posts, low engagement
+  41-65  Moderate — some genuine community pulse with real interactions
   66-85  Active — regular posts, real engagement, visible momentum
-  86-100 Strong signals — high conviction community, cultural staying power
+  86-100 Strong signals — high conviction community, sustained daily activity
 
 Report tone:
-  - If score >= 20: cautiously optimistic, cite specific signals you found
-  - If score < 20:  honest and neutral — do not manufacture optimism
+  - If score >= 20: cautiously optimistic, cite specific signals and approximate post counts
+  - If score < 20: honest and neutral — do not manufacture optimism
   - Never say "100x", "moon", "guaranteed", or predict price
   - No bullet points, no headers — prose only
+  - Mention the timeframe: "in the last 30 days"
 
 Return ONLY the raw JSON object. No markdown, no explanation outside the JSON.
 """
 
 
 def _build_prompt(token: dict) -> str:
+    from datetime import datetime, timezone
+    today = datetime.now(timezone.utc).strftime("%Y-%m-%d")
+
     name   = token.get("name") or token.get("symbol")
     symbol = token.get("symbol", "?")
     handle = token.get("twitter_handle")
 
-    parts = [f"Meme token: {name} (${symbol}) on BNB Smart Chain."]
+    parts = [f"Today's date: {today}."]
+    parts.append(f"Meme token: {name} (${symbol}) on BNB Smart Chain.")
     if handle:
-        parts.append(f"Official X account: @{handle}.")
+        parts.append(
+            f"Official X account: @{handle}. "
+            f"First check if @{handle} is suspended or deactivated. "
+            f"If suspended, return score 0 immediately."
+        )
     if token.get("description"):
         parts.append(f"Description: {token['description']}.")
     parts.append(
-        "Search X for posts about this token from the last 30 days. "
+        f"Search X for posts about this token published between {today} minus 30 days and {today}. "
+        "Only count posts within this 30-day window. "
         "Score the community activity (0-100) and write a short analysis report. "
         "Return only a JSON object: {\"score\": <int>, \"report\": \"<text>\"}"
     )
@@ -162,7 +182,7 @@ async def call_grok(prompt: str) -> dict | None:
                         {"role": "system", "content": _SYSTEM},
                         {"role": "user",   "content": prompt},
                     ],
-                    "max_tokens":  300,
+                    "max_tokens":  600,
                     "temperature": 0.5,
                 },
             )
