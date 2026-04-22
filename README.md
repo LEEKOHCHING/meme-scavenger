@@ -6,7 +6,7 @@ A Web3 loot-box experience built on BNB Smart Chain. An AI agent named **Sophia*
 
 ---
 
-## 🔗 Live Demo: [https://www.tabby.meme](https://www.tabby.meme)
+## 🔗 Live : [https://www.tabby.meme](https://www.tabby.meme)
 
 ---
 
