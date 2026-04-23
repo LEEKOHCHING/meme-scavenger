@@ -6,6 +6,10 @@ A Web3 loot-box experience built on BNB Smart Chain. An AI agent named **Sophia*
 
 ---
 
+## 🔗 Live : [https://www.tabby.meme](https://www.tabby.meme)
+
+---
+
 ## 🎮 How It Works
 
 1. User connects their BSC wallet (MetaMask, OKX, Trust, Binance Wallet)
