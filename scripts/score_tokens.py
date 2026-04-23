@@ -50,7 +50,7 @@ logging.basicConfig(
 logger = logging.getLogger("score_tokens")
 
 GROK_API_URL  = "https://api.x.ai/v1/chat/completions"
-GROK_MODEL    = "grok-3"
+GROK_MODEL    = "grok-4.20-0309-reasoning"
 DELAY_SECONDS = 5   # between calls — be polite to the API
 
 # ── Prompt ────────────────────────────────────────────────────────────────────
@@ -58,8 +58,10 @@ DELAY_SECONDS = 5   # between calls — be polite to the API
 _SYSTEM = """\
 You are a crypto community analyst evaluating whether a meme token's official X account is still active.
 
+IMPORTANT: You MUST use your real-time X search capability to look up the account before answering. Do NOT rely on training data or memory. Always search X live first.
+
 Your job:
-1. Go to the official X account profile provided (e.g. @handle).
+1. SEARCH X NOW for the official account profile provided.
    - Look ONLY at posts published BY that account itself.
    - Do NOT search the broader X platform for token name or symbol mentions.
    - Do NOT include replies or posts from other accounts — only the account's own tweets.
@@ -67,6 +69,7 @@ Your job:
 2. Count posts published BY that account in the last 7 days (cutoff date is provided).
    - Only count posts dated on or after the cutoff date.
    - If the most recent post is older than the cutoff, the count is zero.
+   - If you cannot access the account, state that clearly and assign score 0.
 
 3. Score the account's own posting activity (0-100):
    0-10   Zero posts in the last 7 days — account silent or abandoned
@@ -117,18 +120,25 @@ def _build_prompt(token: dict) -> str:
 
 # ── DB helpers ─────────────────────────────────────────────────────────────────
 
-def get_tokens(limit: int, rescore: bool) -> list[dict]:
+def get_tokens(limit: int, rescore: bool, address: str | None = None) -> list[dict]:
     with get_db() as conn:
         cur = conn.cursor()
-        condition = "" if rescore else "AND x_score IS NULL"
-        cur.execute(f"""
-            SELECT TOP {limit}
-                address, name, symbol, twitter_url, description
-            FROM graduated_tokens
-            WHERE twitter_url IS NOT NULL
-              {condition}
-            ORDER BY launch_time DESC
-        """)
+        if address:
+            cur.execute("""
+                SELECT address, name, symbol, twitter_url, description
+                FROM graduated_tokens
+                WHERE address = ?
+            """, address.lower())
+        else:
+            condition = "" if rescore else "AND x_score IS NULL"
+            cur.execute(f"""
+                SELECT TOP {limit}
+                    address, name, symbol, twitter_url, description
+                FROM graduated_tokens
+                WHERE twitter_url IS NOT NULL
+                  {condition}
+                ORDER BY launch_time DESC
+            """)
         rows = cur.fetchall()
 
     tokens = []
@@ -178,7 +188,7 @@ async def call_grok(prompt: str) -> dict | None:
                         {"role": "user",   "content": prompt},
                     ],
                     "max_tokens":  600,
-                    "temperature": 0.5,
+                    "temperature": 0,
                 },
             )
             r.raise_for_status()
@@ -211,12 +221,12 @@ async def call_grok(prompt: str) -> dict | None:
 
 # ── Main ──────────────────────────────────────────────────────────────────────
 
-async def main(limit: int, rescore: bool):
+async def main(limit: int, rescore: bool, address: str | None = None):
     if not settings.grok_api_key:
         logger.error("GROK_API_KEY not set in .env — aborting")
         return
 
-    tokens = get_tokens(limit, rescore)
+    tokens = get_tokens(limit, rescore, address)
     logger.info(f"=== Scoring {len(tokens)} tokens via Grok ===")
 
     stats = {"scored": 0, "failed": 0}
@@ -253,7 +263,7 @@ async def main(limit: int, rescore: bool):
             continue
 
         save_score(address, score, report)
-        logger.info(f"  → score={score}  {report[:80]}…")
+        logger.info(f"  → score={score}\n{report}")
         stats["scored"] += 1
 
         time.sleep(DELAY_SECONDS)
@@ -265,8 +275,9 @@ async def main(limit: int, rescore: bool):
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
-    parser.add_argument("--limit",   type=int, default=30, help="Number of tokens to process")
-    parser.add_argument("--rescore", action="store_true",  help="Re-score already scored tokens")
+    parser.add_argument("--limit",   type=int, default=30,  help="Number of tokens to process")
+    parser.add_argument("--rescore", action="store_true",   help="Re-score already scored tokens")
+    parser.add_argument("--address", type=str, default=None, help="Score a single token by contract address")
     args = parser.parse_args()
 
-    asyncio.run(main(args.limit, args.rescore))
+    asyncio.run(main(args.limit, args.rescore, args.address))
