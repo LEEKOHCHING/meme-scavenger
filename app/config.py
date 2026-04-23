@@ -37,6 +37,8 @@ class Settings(BaseSettings):
     platform_fee_pct: float = 5.0   # percentage kept by platform (e.g. 5.0 = 5%)
     # xAI Grok (replaces Twitter API + Claude for token report generation)
     grok_api_key: str = ""
+    # twitterapi.io (fetch real tweets by username, pay-per-use ~$0.15/1000 tweets)
+    twitterapiio_key: str = ""
 
     model_config = {"env_file": ".env", "env_file_encoding": "utf-8", "env_ignore_empty": True}
 
