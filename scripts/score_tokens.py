@@ -305,7 +305,15 @@ async def main(limit: int, rescore: bool, address: str | None = None):
         tweets = await fetch_tweets(handle) if handle else []
         stats["tweets_total"] += len(tweets)
 
-        # 2. Build prompt + call Claude
+        # 2. No tweets → score 0 immediately, skip Claude call
+        if not tweets:
+            save_score(tok_address, 0, "No posts were found on the official X account in the last 7 days. The account appears to be inactive.")
+            logger.info("  → score=0 (no tweets found, skipping Claude)")
+            stats["scored"] += 1
+            time.sleep(DELAY_SECONDS)
+            continue
+
+        # 3. Build prompt + call Claude
         prompt = _build_prompt(tok, tweets)
         result = await call_claude(prompt)
 
